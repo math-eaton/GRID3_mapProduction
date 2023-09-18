@@ -1,6 +1,5 @@
 import arcpy
 import csv
-import json
 
 # Set your workspace to the folder containing the project
 arcpy.env.workspace = r"C:\Path\to\Your\Workspace"
@@ -23,15 +22,11 @@ for map in aprx.listMaps():
                 "DataSource": layer.dataSource
             })
 
-# Define the output file path (either CSV or JSON)
-output_file = r"C:\Path\to\Your\Output\File.json"
+# Define the output CSV file path
+output_file = r"C:\Path\to\Your\Output\File.csv"
 
-# Save the layer information to the output file
-with open(output_file, "w") as file:
-    json.dump(layer_info, file, indent=4)  # Use json.dump for JSON output
-
-# Alternatively, if you want to save it to a CSV file
-# with open(output_file, "w", newline="") as file:
-#     csv_writer = csv.DictWriter(file, fieldnames=["MapName", "LayerName", "DataSource"])
-#     csv_writer.writeheader()
-#     csv_writer.writerows(layer_info)
+# Save the layer information to the output CSV file
+with open(output_file, "w", newline="") as file:
+    csv_writer = csv.DictWriter(file, fieldnames=["MapName", "LayerName", "DataSource"])
+    csv_writer.writeheader()
+    csv_writer.writerows(layer_info)

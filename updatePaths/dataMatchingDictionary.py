@@ -1,4 +1,5 @@
 import arcpy
+import csv
 
 # Set your workspace to the folder containing the new geodatabase
 arcpy.env.workspace = r"C:\Path\to\Your\Workspace"
@@ -6,15 +7,20 @@ arcpy.env.workspace = r"C:\Path\to\Your\Workspace"
 # Define the path to your new geodatabase
 new_geodatabase = r"C:\Path\to\Your\New\Geodatabase.gdb"
 
-# Create a dictionary to map old feature class names to new data sources
-data_source_mapping = {
-    "OldLayer1": new_geodatabase + "\\NewFeatureClass1",
-    "OldLayer2": new_geodatabase + "\\NewFeatureClass2",
-    # Add more mappings as needed
-}
-
 # Access your ArcGIS Pro project
 aprx = arcpy.mp.ArcGISProject("C:\Path\to\Your\Project.aprx")
+
+# Load the CSV file with updated data sources
+csv_file = r"C:\Path\to\Your\Input\File.csv"
+
+# Create a dictionary to map LayerName to new data sources
+data_source_mapping = {}
+
+# Read the CSV file and populate the mapping dictionary
+with open(csv_file, "r") as file:
+    csv_reader = csv.DictReader(file)
+    for row in csv_reader:
+        data_source_mapping[row["LayerName"]] = row["DataSource"]
 
 # Iterate through the map(s) in your project
 for map in aprx.listMaps():
@@ -25,13 +31,12 @@ for map in aprx.listMaps():
     for layer in map.listLayers():
         # Check if the layer is a feature layer
         if layer.isFeatureLayer:
-            old_data_source = layer.dataSource
             new_data_source = data_source_mapping.get(layer.name)
 
             if new_data_source:
                 # Update the layer's data source
                 layer.updateConnectionProperties(layer.connectionProperties, new_data_source)
-                layer_info.append((layer.name, old_data_source, new_data_source))
+                layer_info.append((layer.name, layer.dataSource, new_data_source))
 
     # Print the layer information for this map
     print(f"Layers updated in map '{map.name}':")
