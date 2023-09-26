@@ -12,4 +12,4 @@ for filename in os.listdir(directory):
             # Rename the file
             os.rename(os.path.join(directory, filename), os.path.join(directory, new_filename))
 
-print("File renaming complete.")
+print("renaming done.")

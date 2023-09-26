@@ -32,4 +32,4 @@ with open(output_pdf_name, 'wb') as output_pdf:
 # Close the merger object
 pdf_merger.close()
 
-print(f'Merged PDF saved as {output_pdf_name}')
+print(f'merged pdf saved as {output_pdf_name}')
