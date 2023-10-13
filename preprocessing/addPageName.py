@@ -2,17 +2,20 @@ import arcpy
 from arcpy import env
 
 # Set environment settings
-env.workspace = "path/to/your/geodatabase.gdb"  # Replace with your Geodatabase path
+env.workspace = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb"
+env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "your_join_features"  # Replace with your join feature class
-join_field = "pagename"  # Field to join
+joinFeatures = "GRID3_COD_MA_aire_sante_EK_20230918"
+join_field = "pagename"
 
-# Create a new field 'pagename' in the join feature class
-arcpy.AddField_management(joinFeatures, join_field, "TEXT")
+# Ensure the field does not already exist to prevent an error
+fields = [f.name for f in arcpy.ListFields(joinFeatures)]
+if join_field not in fields:
+    arcpy.AddField_management(joinFeatures, join_field, "TEXT")
 
-# Concatenate 'statename', 'lganame', and 'wardname' fields with an underscore separator - replace with relevant admin units
-arcpy.CalculateField_management(joinFeatures, join_field, "!statename! + '_' + !lganame! + '_' + !wardname!", "PYTHON3")
+# Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
+arcpy.CalculateField_management(joinFeatures, join_field, "'RDC_' + !Province_1! + '_' + !zone_sante! + '_' + !aire_sante!", "PYTHON3")
 
 # Define a function to remove non-ascii characters and replace spaces with hyphens
 code_block = """
@@ -23,24 +26,14 @@ def remove_non_ascii(text):
 # Apply the function to the 'pagename' field
 arcpy.CalculateField_management(joinFeatures, join_field, "remove_non_ascii(!{}!)".format(join_field), "PYTHON3", code_block)
 
-# Get a list of all feature classes in a gdb
-featureclasses = arcpy.ListFeatureClasses()
+# Get a list of only point feature classes in the gdb
+featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
 
 # Loop through each feature class
 for targetFeatures in featureclasses:
-    outfc = f"{targetFeatures}_pageName"  # Each output feature will have a unique name
+    # Exclude the original joinFeatures from the loop
+    if targetFeatures != joinFeatures:
+        outfc = f"{targetFeatures}_pagename"
 
-    # Use the Spatial Join tool to join the two feature classes.
-    arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)
-
-    # iterate through other feature classes and join the 'pagename' field to them
-    for fc in featureclasses:
-        if fc != targetFeatures:  # Avoid joining the target feature class with itself
-            # Add Join Field
-            arcpy.management.AddJoin(fc, "OBJECTID", outfc, "TARGET_FID")
-
-            # Copy the joined field to a new field in the feature class
-            arcpy.management.CalculateField(fc, join_field, "!{}.{}!".format(outfc, join_field), "PYTHON3")
-
-            # Remove Join
-            arcpy.management.RemoveJoin(fc, outfc)
+        # Use the Spatial Join tool to join the two feature classes.
+        arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)

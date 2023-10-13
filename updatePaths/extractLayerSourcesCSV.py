@@ -2,10 +2,10 @@ import arcpy
 import csv
 
 # Set your workspace to the folder containing the project
-arcpy.env.workspace = r"C:\Path\to\Your\Workspace"
+arcpy.env.workspace = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010"
 
 # Access your ArcGIS Pro project
-aprx = arcpy.mp.ArcGISProject("C:\Path\to\Your\Project.aprx")
+aprx = arcpy.mp.ArcGISProject("D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\COD_Maniema-Mongala-Tschopo_microplanning_20231010.aprx")
 
 # Create a list to store layer information
 layer_info = []
@@ -23,7 +23,7 @@ for map in aprx.listMaps():
             })
 
 # Define the output CSV file path
-output_file = r"C:\Path\to\Your\Output\File.csv"
+output_file = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\dictionary.csv"
 
 # Save the layer information to the output CSV file
 with open(output_file, "w", newline="") as file:
