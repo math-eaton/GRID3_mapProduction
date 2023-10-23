@@ -21,7 +21,7 @@ def optimize_pdfs_in_directory(input_dir, output_dir):
             optimize_pdf(input_path, output_path)
 
 if __name__ == "__main__":
-    input_directory = "input_pdfs"  # replace with input directory path
-    output_directory = "output_pdfs"  # replace with output directory path
+    input_directory = "/Users/matthewheaton/Downloads/maps_20231020"  # replace with input directory path
+    output_directory = "/Users/matthewheaton/Downloads/maps_20231020/optimized"  # replace with output directory path
 
     optimize_pdfs_in_directory(input_directory, output_directory)
