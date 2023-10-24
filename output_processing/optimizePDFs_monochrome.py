@@ -1,5 +1,6 @@
 import subprocess
 import os
+from concurrent.futures import ProcessPoolExecutor
 
 os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 
@@ -53,6 +54,26 @@ def optimize_pdfs_in_directory(input_dir):
             optimize_with_ghostscript(input_path, output_path)
 
 
+def worker(filename, input_dir):
+    """This will be our worker function to be used by each process in the pool."""
+    input_path = os.path.join(input_dir, filename)
+    base_name = os.path.splitext(filename)[0]
+    new_filename = f"{base_name}_mono-optimized.pdf"
+    output_dir = os.path.join(input_dir, "optimized")
+    output_path = os.path.join(output_dir, new_filename)
+    optimize_with_ghostscript(input_path, output_path)
+
+def optimize_pdfs_in_directory(input_dir, max_workers=None):
+    output_dir = os.path.join(input_dir, "optimized")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    filenames = [filename for filename in os.listdir(input_dir) if filename.endswith(".pdf")]
+    
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        # use the executor to map the worker function over all filenames
+        list(executor.map(worker, filenames, [input_dir]*len(filenames)))
+
 if __name__ == "__main__":
     input_directory = "/Users/matthewheaton/Downloads/maps_20231020"  # replace with your directory path
-    optimize_pdfs_in_directory(input_directory)
+    optimize_pdfs_in_directory(input_directory, max_workers=4)  # Adjust max_workers based on the number of available CPU cores
