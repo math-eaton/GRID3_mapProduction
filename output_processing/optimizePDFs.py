@@ -5,9 +5,9 @@ from tqdm import tqdm
 
 os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 
-def optimize_with_ghostscript(input_path, output_path, dpi=250, mode="GRAY"):
+def optimise_with_ghostscript(input_path, output_path, dpi=250, mode="GRAY"):
     """
-    Optimize PDF using Ghostscript.
+    optimise PDF using Ghostscript.
 
     Modes:
     - "GRAY": Monochrome Grayscale processing
@@ -21,7 +21,7 @@ def optimize_with_ghostscript(input_path, output_path, dpi=250, mode="GRAY"):
         "-dQUIET",
         "-dBATCH",
         "-dCompatibilityLevel=1.4",
-        "-dPDFSETTINGS=/printer",
+        "-dPDFSETTINGS=/screen",
         "-dDetectDuplicateImages=true",
         f"-r{dpi}",
         f"-sOutputFile={output_path}",
@@ -55,13 +55,13 @@ def optimize_with_ghostscript(input_path, output_path, dpi=250, mode="GRAY"):
 def worker(filename, input_dir, mode):
     input_path = os.path.join(input_dir, filename)
     base_name = os.path.splitext(filename)[0]
-    new_filename = f"{base_name}_optimized.pdf"
-    output_dir = os.path.join(input_dir, "optimized")
+    new_filename = f"{base_name}_optimised.pdf"
+    output_dir = os.path.join(input_dir, "optimised")
     output_path = os.path.join(output_dir, new_filename)
-    optimize_with_ghostscript(input_path, output_path, mode=mode)
+    optimise_with_ghostscript(input_path, output_path, mode=mode)
 
-def optimize_pdfs_in_directory(input_dir, mode="GRAY", max_workers=None):
-    output_dir = os.path.join(input_dir, "optimized")
+def optimise_pdfs_in_directory(input_dir, mode="GRAY", max_workers=None):
+    output_dir = os.path.join(input_dir, "optimised")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -71,6 +71,6 @@ def optimize_pdfs_in_directory(input_dir, mode="GRAY", max_workers=None):
         list(tqdm(executor.map(worker, filenames, [input_dir]*len(filenames), [mode]*len(filenames)), total=len(filenames), desc="Optimizing PDFs"))
 
 if __name__ == "__main__":
-    input_directory = "/Users/matthewheaton/Downloads/maps_20231020"  # replace with your directory path
+    input_directory = "/Volumes/bmgfgrid/ScienceData$/mheaton/Documents/output/20231026"  # replace with your directory path
     mode_to_use = "CMYK"  # Change to "GRAY" for grayscale
-    optimize_pdfs_in_directory(input_directory, mode=mode_to_use, max_workers=4)  # Adjust max_workers based on the number of available CPU cores
+    optimise_pdfs_in_directory(input_directory, mode=mode_to_use, max_workers=4)  # Adjust max_workers based on the number of available CPU cores
