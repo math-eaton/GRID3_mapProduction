@@ -6,11 +6,12 @@ import math
 arcpy.env.parallelProcessingFactor = "100%"
 workspace = r"D:\mheaton\cartography\gsapp\colloquium_i\colloquium_i.gdb"
 arcpy.env.workspace = workspace
+arcpy.env.overwriteOutput = True
 
 # Define input and output parameters
 in_raster = "output_USGS30m_NYS_contourExtent_20231126"
 observer_points = "Cellular_Towers_NYS_DEM_clip_20231126"
-batch_size = 10  # Process 10 inputs per batch
+batch_size = 32  # Process 32 inputs per batch
 
 # Function to process viewshed in batches
 def process_batch(batch):
@@ -21,7 +22,7 @@ def process_batch(batch):
         in_observer_features=batch_name,
         out_raster=out_raster,
         out_agl_raster=None,
-        analysis_type="FREQUENCY",
+        analysis_type="OBSERVERS",
         vertical_error="0 Meters",
         out_observer_region_relationship_table=None,
         refractivity_coefficient=0.13,
@@ -40,11 +41,17 @@ def process_batch(batch):
         analysis_target_device="GPU_THEN_CPU"
     )
 
-# Batch processing for three batches
-for batch in range(3):  # Only run three batches for the test
-    start = batch * batch_size + 1  # OBJECTID is usually 1-indexed
+# Determine the total number of batches needed
+with arcpy.da.SearchCursor(observer_points, ["OBJECTID"]) as cursor:
+    total_points = sum(1 for _ in cursor)
+total_batches = math.ceil(total_points / batch_size)
+
+# Batch processing for all batches
+output_rasters = []
+for batch in range(total_batches):
+    start = batch * batch_size + 1
     end = start + batch_size
-    print(f"Processing batch {batch+1} of 3...")
+    print(f"Processing batch {batch+1} of {total_batches}...")
 
     # Create a feature layer for the current batch
     batch_query = f"OBJECTID >= {start} AND OBJECTID < {end}"
@@ -52,5 +59,18 @@ for batch in range(3):  # Only run three batches for the test
     
     # Process the current batch
     process_batch(batch)
+    output_rasters.append(os.path.join(workspace, f"CellTowers_NYS_viewshed_batch_{batch}_20231126"))
 
-print("Processing complete.")
+print("All batches processed. Merging outputs...")
+
+# Merging the Outputs
+merged_output = os.path.join(workspace, "Merged_CellTowers_NYS_Viewshed_20231126")
+arcpy.management.MosaicToNewRaster(
+    input_rasters=output_rasters, 
+    output_location=workspace,
+    raster_dataset_name_with_extension=os.path.basename(merged_output),
+    pixel_type="32_BIT_FLOAT",  # Choose appropriate pixel type
+    number_of_bands=1
+)
+
+print("Merging complete.")
