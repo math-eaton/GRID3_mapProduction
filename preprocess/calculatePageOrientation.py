@@ -3,64 +3,24 @@ from arcpy import env
 
 env.overwriteOutput = True
 
-# 1: Create the minimum bounding rectangle
-# Define the input feature class and output feature class
-input_feature_class = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb\GRID3_COD_MA_aire_sante_EK_20230918"
-output_feature_class = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb\GRID3_COD_MA_aire_sante_EK_20230918_orientation"
+#TODO fix join back to index layer
 
-# Create the minimum bounding rectangle, preserving attributes and generating separate MBG for each feature
-arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename")
+# Helper function to dynamically get the full field name after a join
+def get_joined_field_name(joined_feature_class, field_name):
+    # Get the base name of the joined feature class
+    joined_base_name = arcpy.Describe(joined_feature_class).baseName
 
-# 2: Calculate MBG main angle
-# Add a new field "MBG_Orientation" to the output feature class
-arcpy.AddField_management(output_feature_class, "MBG_Orientation", "DOUBLE")
-
-# Calculate the MBG main angle and store it in the "MBG_Orientation" field
-arcpy.CalculateField_management(output_feature_class, "MBG_Orientation", "!MBG_Angle!", "PYTHON_9.3")
-
-# 3: Add a new text field "pageOrientation"
-arcpy.AddField_management(output_feature_class, "pageOrientation", "TEXT")
-
-# 4: Select records with MBG_orientation value of <45 OR >=135
-# Create a SQL expression for the selection
-sql_expression = "MBG_Orientation < 45 OR MBG_Orientation >= 135"
-
-# Select the records based on the SQL expression
-arcpy.SelectLayerByAttribute_management(output_feature_class, "NEW_SELECTION", sql_expression)
-
-# 5: Calculate selected records in pageOrientation as "PORTRAIT"
-arcpy.CalculateField_management(output_feature_class, "pageOrientation", "'PORTRAIT'", "PYTHON")
-
-# 6: Invert the selection and calculate pageOrientation as "LANDSCAPE"
-# Invert the current selection
-arcpy.SelectLayerByAttribute_management(output_feature_class, "SWITCH_SELECTION")
-
-# Calculate the inverted selection in pageOrientation as "LANDSCAPE"
-arcpy.CalculateField_management(output_feature_class, "pageOrientation", "'LANDSCAPE'", "PYTHON")
-
-# Clear the selection
-arcpy.SelectLayerByAttribute_management(output_feature_class, "CLEAR_SELECTION")
-
-# 7: Join the "pageOrientation" field back to the original input feature class
-# Define the join fields and the join type
-join_input = input_feature_class
-join_input_field = "pagename"  
-join_output = output_feature_class
-join_output_field = "pagename"  
-join_type = "KEEP_COMMON"
-
-import arcpy
-from arcpy import env
-
-env.overwriteOutput = True
+    # Construct the joined field name
+    full_field_name = "{}.{}".format(joined_base_name, field_name)
+    return full_field_name
 
 # 1: Create the minimum bounding rectangle
 # Define the input feature class and output feature class
-input_feature_class = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb\GRID3_COD_MA_aire_sante_EK_20230918"
-output_feature_class = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb\GRID3_COD_MA_aire_sante_EK_20230918_MBG"
+input_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb\TP_MG_aire_sante"
+output_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb\TP_MG_aire_sante_MBG_20240116"
 
 # Create the minimum bounding rectangle, preserving attributes and generating separate MBG for each feature
-arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename")
+arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename", "MBG_FIELDS")
 
 # 2: Calculate MBG main angle
 # Add a new field "MBG_Orientation" to the output feature class
@@ -73,58 +33,54 @@ arcpy.CalculateField_management(output_feature_class, "MBG_Orientation", "!MBG_O
 arcpy.AddField_management(output_feature_class, "pageOrientation", "TEXT")
 
 # 4: Select records with MBG_orientation value of <45 OR >=135
-# Create a SQL expression for the selection
+
+# Create a layer from the output feature class
+arcpy.MakeFeatureLayer_management(output_feature_class, "output_layer")
+
+# Use the created layer for selection
 sql_expression = "MBG_Orientation < 45 OR MBG_Orientation >= 135"
+arcpy.SelectLayerByAttribute_management("output_layer", "NEW_SELECTION", sql_expression)
 
 # Select the records based on the SQL expression
-arcpy.SelectLayerByAttribute_management(output_feature_class, "NEW_SELECTION", sql_expression)
+# Select records for "PORTRAIT"
+print("Count of PORTRAIT records:", arcpy.GetCount_management("output_layer"))
 
-# 5: Calculate selected records in pageOrientation as "PORTRAIT"
-arcpy.CalculateField_management(output_feature_class, "pageOrientation", "'PORTRAIT'", "PYTHON")
+# Calculate "PORTRAIT"
+arcpy.CalculateField_management("output_layer", "pageOrientation", "'PORTRAIT'", "PYTHON")
 
-# 6: Invert the selection and calculate pageOrientation as "LANDSCAPE"
-# Invert the current selection
-arcpy.SelectLayerByAttribute_management(output_feature_class, "SWITCH_SELECTION")
+# Select records for "LANDSCAPE"
+arcpy.SelectLayerByAttribute_management("output_layer", "SWITCH_SELECTION")
+print("Count of LANDSCAPE records:", arcpy.GetCount_management("output_layer"))
 
-# Calculate the inverted selection in pageOrientation as "LANDSCAPE"
-arcpy.CalculateField_management(output_feature_class, "pageOrientation", "'LANDSCAPE'", "PYTHON")
+# Calculate "LANDSCAPE"
+arcpy.CalculateField_management("output_layer", "pageOrientation", "'LANDSCAPE'", "PYTHON")
 
 # Clear the selection
-arcpy.SelectLayerByAttribute_management(output_feature_class, "CLEAR_SELECTION")
+arcpy.SelectLayerByAttribute_management("output_layer", "CLEAR_SELECTION")
 
-# 7: Join the "pageOrientation" field back to the original input feature class
-# Define the join fields and the join type
+# Join the 'pageOrientation' field back to the original input feature class
 join_input = input_feature_class
-join_input_field = "pagename"  
-join_output = output_feature_class
-join_output_field = "pagename"  
+join_output_field = "pagename"  # Adjust the field name as per your data
 join_type = "KEEP_COMMON"
 
-# 9: Create a layer from the feature class
-arcpy.MakeFeatureLayer_management(join_input, "temp_layer")
+# Create a layer from the input feature class (if not already created)
+arcpy.MakeFeatureLayer_management(input_feature_class, "input_layer")
 
-# 10: Join the fields using the layer
-arcpy.AddJoin_management("temp_layer", join_input_field, join_output, join_output_field, "KEEP_COMMON")
+# Use the helper function to get the correct full field name for 'pageOrientation' in the output layer
+full_field_name_output = get_joined_field_name(output_feature_class, "pageOrientation")
 
-fields = [f.name for f in arcpy.ListFields("temp_layer")]
-print(fields)
-
-# 8: Add a new "pageOrientation_New" field to the input feature class to store the independent values
+# Add a new "pageOrientation_New" field to the input feature class to store the independent values
 arcpy.AddField_management(input_feature_class, "pageOrientation_New", "TEXT")
 
-# 9: Calculate "pageOrientation_New" = pageOrientation (from the join)
-arcpy.CalculateField_management(input_feature_class, "pageOrientation_New", "!pageOrientation!", "PYTHON")
+# Calculate "pageOrientation_New" = pageOrientation (from the join) using the input layer
+arcpy.CalculateField_management("input_layer", "pageOrientation_New", "!" + full_field_name_output + "!", "PYTHON")
 
-# 10: Create a layer from the feature class
-if arcpy.Exists("temp_layer"):
-    arcpy.Delete_management("temp_layer")
-arcpy.MakeFeatureLayer_management(join_input, "temp_layer")
+# Remove the join from the input layer
+arcpy.RemoveJoin_management("input_layer", arcpy.Describe(output_feature_class).baseName)
 
-# 11: Remove the join from the layer
-arcpy.RemoveJoin_management("temp_layer", arcpy.Describe(join_output).baseName)
-
-# 12: Optionally delete the layer (if you don't need it later)
-arcpy.Delete_management("temp_layer")
+# Delete the temporary layers if no longer needed
+arcpy.Delete_management("input_layer")
+arcpy.Delete_management("output_layer")
 
 # 13: Delete the original pageOrientation field (from the join)
 arcpy.DeleteField_management(input_feature_class, "pageOrientation")

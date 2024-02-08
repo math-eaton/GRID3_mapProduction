@@ -16,7 +16,7 @@ batch_size = 32  # Process 32 inputs per batch
 # Function to process viewshed in batches
 def process_batch(batch):
     batch_name = f"batch_{batch}"
-    out_raster = os.path.join(workspace, f"CellTowers_NYS_viewshed_{batch_name}_20231126")
+    out_raster = os.path.join(workspace, f"CellTowers_NYS_viewshed_{batch_name}_20231128")
     arcpy.ddd.Viewshed2(
         in_raster=in_raster,
         in_observer_features=batch_name,

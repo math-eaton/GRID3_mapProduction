@@ -2,11 +2,11 @@ import arcpy
 from arcpy import env
 
 # Set environment settings
-env.workspace = "D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processed\scratch.gdb"
+env.workspace = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb"
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "GRID3_COD_MA_aire_sante_EK_20230918"
+joinFeatures = "TP_MG_aire_sante"
 join_field = "pagename"
 
 # Ensure the field does not already exist to prevent an error
@@ -15,7 +15,7 @@ if join_field not in fields:
     arcpy.AddField_management(joinFeatures, join_field, "TEXT")
 
 # Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-arcpy.CalculateField_management(joinFeatures, join_field, "'RDC_' + !Province_1! + '_' + !zone_sante! + '_' + !aire_sante!", "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, join_field, "'RDC_' + !province! + '_' + !zone_sante! + '_' + !aire_sante!", "PYTHON3")
 
 # Define a function to remove non-ascii characters and replace spaces with hyphens
 code_block = """
@@ -37,3 +37,5 @@ for targetFeatures in featureclasses:
 
         # Use the Spatial Join tool to join the two feature classes.
         arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)
+
+print("done.")
