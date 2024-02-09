@@ -16,8 +16,8 @@ def get_joined_field_name(joined_feature_class, field_name):
 
 # 1: Create the minimum bounding rectangle
 # Define the input feature class and output feature class
-input_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb\TP_MG_aire_sante"
-output_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb\TP_MG_aire_sante_MBG_20240116"
+input_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries_SK_KC.gdb\SK_KC_zs_Merge_exploded_20240123"
+output_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries_SK_KC.gdb\SK_KC_zs_Merge_exploded_MBG_20240125"
 
 # Create the minimum bounding rectangle, preserving attributes and generating separate MBG for each feature
 arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename", "MBG_FIELDS")
@@ -66,14 +66,28 @@ join_type = "KEEP_COMMON"
 # Create a layer from the input feature class (if not already created)
 arcpy.MakeFeatureLayer_management(input_feature_class, "input_layer")
 
+###############
+
+# Ensure the join is successful and fields are properly referenced
+arcpy.MakeFeatureLayer_management(output_feature_class, "output_layer")
+arcpy.MakeFeatureLayer_management(input_feature_class, "input_layer")
+
+# Perform the join operation
+arcpy.AddJoin_management("input_layer", join_output_field, "output_layer", join_output_field, join_type)
+
 # Use the helper function to get the correct full field name for 'pageOrientation' in the output layer
 full_field_name_output = get_joined_field_name(output_feature_class, "pageOrientation")
 
-# Add a new "pageOrientation_New" field to the input feature class to store the independent values
-arcpy.AddField_management(input_feature_class, "pageOrientation_New", "TEXT")
+# Verify the field name is correct
+print("Full field name after join: ", full_field_name_output)
 
-# Calculate "pageOrientation_New" = pageOrientation (from the join) using the input layer
+# Add the new field for calculation
+arcpy.AddField_management("input_layer", "pageOrientation_New", "TEXT")
+
+# Perform the field calculation
 arcpy.CalculateField_management("input_layer", "pageOrientation_New", "!" + full_field_name_output + "!", "PYTHON")
+
+############
 
 # Remove the join from the input layer
 arcpy.RemoveJoin_management("input_layer", arcpy.Describe(output_feature_class).baseName)
@@ -87,3 +101,5 @@ arcpy.DeleteField_management(input_feature_class, "pageOrientation")
 
 # 14: Rename "pageOrientation_New" to "pageOrientation"
 arcpy.AlterField_management(input_feature_class, "pageOrientation_New", "pageOrientation")
+
+print("done.")

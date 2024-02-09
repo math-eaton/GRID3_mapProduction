@@ -2,11 +2,11 @@ import arcpy
 from arcpy import env
 
 # Set environment settings
-env.workspace = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries.gdb"
+env.workspace = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries_SK_KC.gdb"
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "TP_MG_aire_sante"
+joinFeatures = "SK_KC_zs_Merge_exploded_20240123"
 join_field = "pagename"
 
 # Ensure the field does not already exist to prevent an error
@@ -15,7 +15,7 @@ if join_field not in fields:
     arcpy.AddField_management(joinFeatures, join_field, "TEXT")
 
 # Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-arcpy.CalculateField_management(joinFeatures, join_field, "'RDC_' + !province! + '_' + !zone_sante! + '_' + !aire_sante!", "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, join_field, "'RDC_' + !province! + '_' + !zone_sante!", "PYTHON3")
 
 # Define a function to remove non-ascii characters and replace spaces with hyphens
 code_block = """
