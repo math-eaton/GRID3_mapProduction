@@ -1,54 +1,67 @@
 import arcpy
-import math
+import random
 import os
-import random  # Use 'random' instead of 'math.random'
 
-# Set the workspace - Update this path to your project's geodatabase
+# Set the workspace and overwrite output
 arcpy.env.workspace = r"D:\mheaton\cartography\gsapp\colloquium_i\nys_grid_subsetting\input_raw.gdb"
 arcpy.env.overwriteOutput = True
 
 # Inputs
-input_polygon = "study_area_true_usaClip"  # Name of the input polygon feature class
-output_grid = "sample_cells"  # Name for the output grid feature class
-output_gdb = r"D:\mheaton\cartography\gsapp\colloquium_i\nys_grid_subsetting\output_clipped.gdb"  # Path to the output geodatabase
+input_polygon = "study_area_true_usaClip"
+output_grid = "sample_cells"
+output_gdb = r"D:\mheaton\cartography\gsapp\colloquium_i\nys_grid_subsetting\output_clipped.gdb"
+polygonWidth = "25 kilometers"
+polygonHeight = "25 kilometers"
+samplePercentage = 10
 
-# Grid Index Features parameters
-polygonWidth = "25 kilometers"  # Adjust as needed
-polygonHeight = "25 kilometers"  # Adjust as needed
-samplePercentage = 5
-
-# Step 1: Create Grid Index Features using the ArcPy Cartography tool
+# Create Grid Index Features
 arcpy.cartography.GridIndexFeatures(out_feature_class=output_grid, 
                                     in_features=input_polygon, 
                                     polygon_width=polygonWidth, 
                                     polygon_height=polygonHeight)
 
-# Step 2: Extract a random sample of the grid cells
+# Extract a random sample of the grid cells
 grid_cells = [row[0] for row in arcpy.da.SearchCursor(output_grid, "OID@")]
-sample_size = int(len(grid_cells) * (samplePercentage / 100.0))  
-sampled_cells = random.sample(grid_cells, sample_size)  
+sample_size = int(len(grid_cells) * (samplePercentage / 100.0))
+sampled_cells = random.sample(grid_cells, sample_size)
 
-# Create a new feature class for sampled cells
-sampled_grid = os.path.join(output_gdb, "sampled_grid")
-arcpy.management.CreateFeatureclass(output_gdb, "sampled_grid", "POLYGON", template=output_grid)
+# Clip and export features for each sampled grid cell, but merge into a single output feature class per input feature class
+feature_classes = arcpy.ListFeatureClasses()
 
-# Insert the sampled cells into the new feature class
-with arcpy.da.InsertCursor(sampled_grid, ["SHAPE@"]) as insert_cursor:
-    where_clause = f"OID IN ({','.join(map(str, sampled_cells))})"
-    with arcpy.da.SearchCursor(output_grid, ["SHAPE@"], where_clause=where_clause) as search_cursor:
-        for row in search_cursor:
-            insert_cursor.insertRow(row)
+for fc in feature_classes:
+    desc = arcpy.Describe(fc)
+    input_geometry_type = desc.shapeType  # Get the geometry type of the input feature class
+    
+    output_fc_name = f"{fc}_clip"
+    output_fc_path = os.path.join(output_gdb, output_fc_name)
 
-# Step 3: Clip and export features for each sampled grid cell
-feature_classes = arcpy.ListFeatureClasses()  # List all feature classes in the input geodatabase
-for cell_id in sampled_cells:
-    where_clause = f"OID = {cell_id}"
-    with arcpy.da.SearchCursor(output_grid, ["SHAPE@"], where_clause=where_clause) as cursor:
-        for row in cursor:
-            cell_shape = row[0]
-            for fc in feature_classes:
-                output_fc_name = f"{fc}_clip_{cell_id}"
-                output_fc_path = os.path.join(output_gdb, output_fc_name)
-                arcpy.analysis.Clip(fc, cell_shape, output_fc_path)
+    # Create the output feature class ensuring the geometry type matches the input feature class
+    arcpy.management.CreateFeatureclass(output_gdb, output_fc_name, input_geometry_type, spatial_reference=desc.spatialReference)
+    arcpy.management.AddField(output_fc_path, "index_grid", "LONG")
+
+    insert_cursor_fields = ["SHAPE@", "index_grid"] if input_geometry_type.upper() != "POINT" else ["SHAPE@XY", "index_grid"]
+    insert_cursor = arcpy.da.InsertCursor(output_fc_path, insert_cursor_fields)
+    
+    for cell_id in sampled_cells:
+        where_clause = f"OID = {cell_id}"
+        with arcpy.da.SearchCursor(output_grid, ["SHAPE@"], where_clause=where_clause) as cursor:
+            for row in cursor:
+                cell_shape = row[0]
+                in_memory_fc = "in_memory/clipped"
+                arcpy.analysis.Clip(fc, cell_shape, in_memory_fc)
+                
+                # Explode multipart features to singlepart
+                singlepart_fc = "in_memory/singlepart"
+                arcpy.MultipartToSinglepart_management(in_memory_fc, singlepart_fc)
+                
+                # Insert exploded features into the output feature class
+                with arcpy.da.SearchCursor(singlepart_fc, ["SHAPE@"]) as singlepart_features:
+                    for feature in singlepart_features:
+                        if input_geometry_type.upper() == "POINT":
+                            insert_cursor.insertRow([feature[0].centroid, cell_id])
+                        else:
+                            insert_cursor.insertRow([feature[0], cell_id])
+    
+    del insert_cursor  # Ensure the cursor is closed
 
 print("done.")
