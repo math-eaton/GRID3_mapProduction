@@ -2,7 +2,7 @@ import os
 import shutil
 
 # Specify the target directory where you want to search for PDFs
-target_directory = r'D:\xyz'
+target_directory = r'D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\output\20240202'
 
 # Recursively search for PDF files in the target directory
 for root, dirs, files in os.walk(target_directory):

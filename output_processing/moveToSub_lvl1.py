@@ -1,7 +1,7 @@
 import os
 import shutil
 
-folder = r'D:\xyz'
+folder = r'D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\output\20240202'
 
 # Get a list of all PDF files in the folder
 pdf_files = [file for file in os.listdir(folder) if file.lower().endswith('.pdf')]
@@ -9,7 +9,7 @@ pdf_files = [file for file in os.listdir(folder) if file.lower().endswith('.pdf'
 # Iterate through each PDF file and organize them into subfolders
 for pdf_file in pdf_files:
     # Extract the target folder name based on the delimiter ('_') ... adjust the index value based on intended split level
-    target = pdf_file.split('_')[4]
+    target = pdf_file.split('_')[3]
     
     # Create the target directory if it doesn't exist
     target_directory = os.path.join(folder, target)

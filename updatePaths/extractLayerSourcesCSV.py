@@ -5,10 +5,10 @@ import os
 arcpy.env.overwriteOutput = True
 
 # Set your workspace to the folder containing the project
-arcpy.env.workspace = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010"
+arcpy.env.workspace = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402"
 
 # Access your ArcGIS Pro project
-aprx = arcpy.mp.ArcGISProject(r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\COD_Maniema-Mongala-Tschopo_microplanning_updates_202401.aprx")
+aprx = arcpy.mp.ArcGISProject(r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\NGA_Gombe-Ogun_202402.aprx")
 
 # Create a list to store layer information
 layer_info = []
