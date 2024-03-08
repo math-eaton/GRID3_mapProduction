@@ -31,7 +31,7 @@ def process_batch(batch):
         observer_offset="AllStruc",
         inner_radius=None,
         inner_radius_is_3d="GROUND",
-        outer_radius="45 Miles",
+        outer_radius="30 Miles",
         outer_radius_is_3d="GROUND",
         horizontal_start_angle=0,
         horizontal_end_angle=360,

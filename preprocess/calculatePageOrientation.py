@@ -16,8 +16,8 @@ def get_joined_field_name(joined_feature_class, field_name):
 
 # 1: Create the minimum bounding rectangle
 # Define the input feature class and output feature class
-input_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries_SK_KC.gdb\SK_KC_zs_Merge_exploded_20240123"
-output_feature_class = r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing\boundaries_SK_KC.gdb\SK_KC_zs_Merge_exploded_MBG_20240125"
+input_feature_class = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\data\processing\scratch.gdb\jigawa_mapIndex_20240229"
+output_feature_class = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\data\processing\scratch.gdb\jigawa_mapIndex_orientation_20240229"
 
 # Create the minimum bounding rectangle, preserving attributes and generating separate MBG for each feature
 arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename", "MBG_FIELDS")

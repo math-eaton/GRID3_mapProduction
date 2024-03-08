@@ -14,74 +14,41 @@ input_feature_class = "SK_KC_zs_Merge"
 # Output feature class to store exploded polygons
 output_feature_class = input_feature_class + "_exploded" + current_date
 
-# Create a spatial reference object
-spatial_ref = arcpy.Describe(input_feature_class).spatialReference
-
-# Create a field to store pageCount
-arcpy.AddField_management(input_feature_class, "pageCount", "LONG")
-
-# Start an edit session
-edit = arcpy.da.Editor(arcpy.env.workspace)
-edit.startEditing(False, True)
-
-# Start an edit operation
-edit.startOperation()
-
-# Loop through the input feature class and set pageCount to 1 for singlepart polygons
-with arcpy.da.UpdateCursor(input_feature_class, ["OID@", "SHAPE@", "pageCount"]) as cursor:
+# Check for multipart polygons
+multipart_exists = False
+with arcpy.da.SearchCursor(input_feature_class, ["SHAPE@"]) as cursor:
     for row in cursor:
-        oid, shape, pageCount_field = row
-        if shape.isMultipart:
-            # Leave pageCount as None for multipart polygons to be handled later
-            pageCount_field = None
-        else:
-            pageCount_field = 1
-        row[2] = pageCount_field
-        cursor.updateRow(row)
+        if row[0].isMultipart:
+            multipart_exists = True
+            break
 
-# Stop the edit operation and edit session
-edit.stopOperation()
-edit.stopEditing(True)
+# Proceed only if multipart polygons exist
+if multipart_exists:
+    # Create a field to store pageCount
+    arcpy.AddField_management(input_feature_class, "pageCount", "LONG")
 
-# Explode multipart polygons
-arcpy.management.MultipartToSinglepart(input_feature_class, output_feature_class)
+    # Explode multipart polygons
+    arcpy.management.MultipartToSinglepart(input_feature_class, output_feature_class)
 
-# Dictionary to store pageCount for each original OID
-page_count_dict = {}
+    # Initialize a dictionary to store the area of each exploded part
+    exploded_parts_area = {}
 
-# Initialize a dictionary to store the area of each exploded part
-exploded_parts_area = {}
+    # Iterate over the exploded polygons to calculate their area
+    with arcpy.da.SearchCursor(output_feature_class, ["OID@", "SHAPE@AREA"]) as cursor:
+        for row in cursor:
+            oid, area = row
+            exploded_parts_area[oid] = area
 
-# Iterate over the exploded polygons to calculate their area and update pageCount
-with arcpy.da.UpdateCursor(output_feature_class, ["OID@", "ORIG_FID", "SHAPE@AREA", "pageCount"]) as cursor:
-    for row in cursor:
-        oid, orig_fid, area, page_count_field = row
-        exploded_parts_area[oid] = area  # Store area of each part
-        if orig_fid not in page_count_dict:
-            page_count_dict[orig_fid] = 1
-        else:
-            page_count_dict[orig_fid] += 1
-        page_count_field = page_count_dict[orig_fid]
-        row[3] = page_count_field
-        cursor.updateRow(row)
+    # Generate a report file only if there are exploded parts
+    if exploded_parts_area:
+        report_file_name = input_feature_class + current_date + ".txt"
+        report_file_path = os.path.join(r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing", report_file_name)
 
-# Update the original feature class with the correct pageCount for multipart polygons
-with arcpy.da.UpdateCursor(input_feature_class, ["OID@", "pageCount"]) as cursor:
-    for row in cursor:
-        oid, pageCount_field = row
-        if oid in page_count_dict:
-            pageCount_field = page_count_dict[oid]
-        row[1] = pageCount_field
-        cursor.updateRow(row)
-
-# Generate a combined report of multipart polygons, their areas of exploded parts
-# Use input feature class name in the report file name
-report_file_name = input_feature_class + current_date + ".txt"
-report_file_path = os.path.join(r"D:\GRID\DRC\Cartography\COD_Maniema-Mongala-Tschopo_microplanning_20231010\data\processing", report_file_name)
-
-with open(report_file_path, "w") as report_file:
-    report_file.write("FID,Area\n")
-    for oid, area in exploded_parts_area.items():
-        report_file.write(f"{oid},{area}\n")
+        with open(report_file_path, "w") as report_file:
+            report_file.write("FID,Area\n")
+            for oid, area in exploded_parts_area.items():
+                report_file.write(f"{oid},{area}\n")
+else:
+    print("No multipart polygons in input")
 
 print("done")
