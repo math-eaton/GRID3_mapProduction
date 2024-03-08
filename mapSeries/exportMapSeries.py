@@ -1,11 +1,36 @@
+
+# assume the first command-line argument (after the script name) is the start page,
+# and the second argument is the end page.
+# eg: python exportMapSeries.py 1 50
+# this will process pages from 1 to 50 ... ideally for concurrent usage
+
 import arcpy
 import os
 import sys
 import re
 from datetime import datetime
 
-# Define the path to your ArcGIS Pro project (.aprx)
+# Define variables for use case and resolution
+use_case = "microplanning"
+resolution = 300 
+layout_size = "A1"
+
+# Function to format the current date in YYYYMMDD format
+def get_current_date_format():
+    return datetime.now().strftime('%Y%m%d')
+
+# Define the path to your pro project
 project_path = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\microplanning_projects\NGA_Jigawa_microplanning_WARDLEVEL_SATELLITE_20240229.aprx"
+
+# Define the name of your custom output directory
+output_foldername = f"OUPUT_{layout_size}_{use_case}_{get_current_date_format()}"
+
+# Construct the full path to the output directory within the same folder as the ArcGIS Pro project
+output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
+
+# Check if the output directory exists, and if not, create it
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
 
 # Optional: Define keywords for layout selection, e.g., "LANDSCAPE" or "PORTRAIT"
 # If specified, the script will also select map series pages matching these keywords in the pageOrientation field. else leave empty []
@@ -13,23 +38,12 @@ project_path = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\microplanning_
 layout_keywords = []
 
 
-# Define variables for use case and resolution
-use_case = "microplanning"
-resolution = 286  # Specify the resolution
-layout_size = "A2"
-
-# Define the maximum number of PDFs to export for testing purposes
-max_exports = 2
-
 # Load the ArcGIS Pro project
 p = arcpy.mp.ArcGISProject(project_path)
 
 # Start timing the script
 script_start_time = datetime.now()
 
-# Function to format the current date in YYYYMMDD format
-def get_current_date_format():
-    return datetime.now().strftime('%Y%m%d')
 
 # Function to check if the layout matches specified keywords
 def layout_matches_keywords(layout):
@@ -73,12 +87,13 @@ for layout in p.listLayouts():
 
         # Correct way to obtain the name_field as a string
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
-        
-        # Iterate through each page in the map series
-        for pageNum in range(1, ms.pageCount + 1):
-            if exported_count >= max_exports:  # Check if the export limit is reached
-                print(f"Export limit of {max_exports} PDFs reached. Exiting.")
-                break  # Break out of the loop once the limit is reached
+
+        # Retrieve start and end page numbers from command-line arguments
+        start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1  # Default to 1 if not specified
+        end_page = int(sys.argv[2]) if len(sys.argv) > 2 else ms.pageCount  # Default to total page count if not specified
+
+        # Modify the loop to process only the specified range of pages
+        for pageNum in range(start_page, end_page + 1):
 
             ms.currentPageNumber = pageNum
             original_page_name = getattr(ms.pageRow, str(name_field))  # Getting the raw page name
@@ -95,35 +110,33 @@ for layout in p.listLayouts():
 
                 # Construct the base output filename without the extension
                 # base_output_name = f"{layout_size}_{page_name}_{use_case}_{resolution}_{get_current_date_format()}"
-                base_output_name = f"{layout_size}_{page_name}_{use_case}_300dpi_{get_current_date_format()}"
-                print(base_output_name)
+                base_output_name = f"{layout_size}_{page_name}_{use_case}_{resolution}dpi_{get_current_date_format()}"
+                # print(base_output_name)
 
-                # Ensure the filename is unique within the output directory
-                output_pdf_name = unique_filename(os.path.dirname(sys.argv[0]), base_output_name, ".pdf")  # Use .pdf as the extension
+                # Ensure the filename is unique within the custom output directory
+                output_pdf_name = unique_filename(output_directory, base_output_name, ".pdf")  # Use .pdf as the extension
+
+                output_pdf_path = os.path.join(output_directory, output_pdf_name)
                 
-                output_pdf_path = os.path.join(os.path.dirname(sys.argv[0]), output_pdf_name)
-                print(output_pdf_name)
-                print(output_pdf_path)
+                # print(output_pdf_name)
+                # print(output_pdf_path)
                 
                 # Export the current page as PDF
-                layout.exportToPDF(output_pdf_path, resolution=resolution)
+                layout.exportToPDF(output_pdf_path, resolution=resolution, image_quality='BEST', 
+                compress_vector_graphics=True, image_compression='JPEG', embed_fonts=True,
+                layers_attributes='NONE', georef_info=False, jpeg_compression_quality=75, 
+                output_as_image=False, embed_color_profile=True)
 
-                
+            
                 page_end_time = datetime.now()  # End timing the page creation
                 page_creation_time = page_end_time - page_start_time
                 total_elapsed_time = page_end_time - script_start_time
                 
-                print(f"Exported: {output_pdf_name}")
+                print(f"Exported: {output_pdf_name} to {output_directory}")
                 print(f"Page creation time: {page_creation_time}")
                 print(f"Total elapsed time: {total_elapsed_time}")
                 print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 
-                exported_count += 1  # Increment the counter after each export
-                
-                if exported_count >= max_exports:
-                    print("Reached the maximum number of exports.")
-                    break  # Ensure the loop is exited if the limit is reached
-
 # Clean up
 del p
 print("done.")
