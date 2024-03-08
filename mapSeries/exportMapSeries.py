@@ -96,6 +96,9 @@ for layout in p.listLayouts():
         for pageNum in range(start_page, end_page + 1):
 
             ms.currentPageNumber = pageNum
+
+            print(f"Processing Map Series Page: {pageNum}")
+
             original_page_name = getattr(ms.pageRow, str(name_field))  # Getting the raw page name
 
             # Sanitize the page name
