@@ -31,7 +31,7 @@ featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
 
 # Loop through each feature class
 for targetFeatures in featureclasses:
-    # Exclude the original joinFeatures from the loop
+    # Exclude the original joinFeatures from the loopx
     if targetFeatures != joinFeatures:
         outfc = f"{targetFeatures}_pagename"
 
