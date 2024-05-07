@@ -5,7 +5,7 @@ def organize_pdfs_in_subfolders(folder):
     # Walk through all folders and subfolders
     for root, dirs, files in os.walk(folder):
         # Filter for PDF files
-        pdf_files = [file for file in files if file.lower().endswith('.pdf')]
+        pdf_files = [file for file in files if file.lower().endswith('.jpg')]
         
         # If there are PDF files, organize them
         if pdf_files:
@@ -32,5 +32,5 @@ def organize_pdfs_in_subfolders(folder):
     print("PDFs organized within their respective subfolders.")
 
 # Define the main directory to start organizing PDFs
-folder = r'D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\output\20240308_jigawa_microplanning_300dpi'
+folder = r'E:\mheaton\cartography\NGA_microplanning_2024\OUTPUT_A1_implementation_2_20240421'
 organize_pdfs_in_subfolders(folder)

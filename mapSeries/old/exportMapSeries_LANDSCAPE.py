@@ -20,27 +20,6 @@ index_layer_field = "pageOrientation"
 # Find layouts that contain the word "landscape" in their names
 matching_layouts = []
 
-def sanitize_filename(name):
-    """Remove whitespace, forbidden, and non-ASCII characters."""
-    # Remove non-ASCII characters
-    name = name.encode('ascii', 'ignore').decode()
-    # Remove forbidden characters and whitespace
-    forbidden_chars = r'[\\/*?:"<>| ]'  # Add or remove characters based on your OS and requirements
-    name = re.sub(forbidden_chars, '', name)
-    return name
-
-def unique_filename(directory, name, extension):
-    """Ensure filename uniqueness in the given directory by appending a sequential character."""
-    filename = f"{name}{extension}"
-    filepath = os.path.join(directory, filename)
-    counter = 1
-    # If the file exists, append a counter to the name until it's unique
-    while os.path.exists(filepath):
-        filename = f"{name}_{counter}{extension}"
-        filepath = os.path.join(directory, filename)
-        counter += 1
-    return filename
-
 
 # Iterate through all layouts in the project
 for layout in p.listLayouts():

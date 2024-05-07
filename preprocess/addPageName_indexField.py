@@ -1,12 +1,14 @@
 import arcpy
 from arcpy import env
 
+# todo add alternative pagenames for different admin level uids in case
+
 # Set environment settings
-env.workspace = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\data\raw\NGA_202402_consolidated.gdb"
+env.workspace = r"E:\mheaton\cartography\COD_microplanning_042024\data\consolidated\consolidated.gdb"
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "gombe_ward_bry_wPop_20240313"
+joinFeatures = "GRID3_COD_MN_health_areas_v1_0_20240430"
 indexField = "pageName" 
 
 # Ensure the field does not already exist to prevent an error
@@ -15,7 +17,7 @@ if indexField not in fields:
     arcpy.AddField_management(joinFeatures, indexField, "TEXT")
 
 # Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-arcpy.CalculateField_management(joinFeatures, indexField, "'NGA_' + !statename! + '_' + !lganame! + '_' + !wardname!", "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, indexField, "'RDC_' + !province! + '_' + !zonesante! + '_' + !airesante!", "PYTHON3")
 
 # Define a consolidated function to clean up the text
 code_block = """

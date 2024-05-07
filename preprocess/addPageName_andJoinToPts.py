@@ -1,37 +1,44 @@
 import arcpy
 from arcpy import env
+import re
 
 # Set environment settings
-env.workspace = r"D:\GRID\NGA\map_production\NGA_Gombe-Ogun_202402\data\raw\NGA_202402_consolidated.gdb"
+env.workspace = r"E:\mheaton\cartography\NGA_microplanning_2024\data\processing\Ogun_NMEP_maps_layers_processing.gdb"
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "Nigeria___Ward_Boundaries"
-join_field = "pagename"
+joinFeatures = "GRID3_NGA_Ogun_wards_ek_20240328"
+indexField = "pagename"
 
 # Ensure the field does not already exist to prevent an error
 fields = [f.name for f in arcpy.ListFields(joinFeatures)]
-if join_field not in fields:
-    arcpy.AddField_management(joinFeatures, join_field, "TEXT")
+if indexField not in fields:
+    arcpy.AddField_management(joinFeatures, indexField, "TEXT")
 
 # Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-arcpy.CalculateField_management(joinFeatures, join_field, "'NGA_' + !statename! + '_' + !lganame! + '_' + !wardname!", "PYTHON3")
+# Ensure field names are correctly referenced
+arcpy.CalculateField_management(joinFeatures, indexField, "'RDC_' + !province! + '_' + !zonesante! + '_' + !airesante!", "PYTHON3")
 
-# Define a function to remove non-ascii characters and replace spaces with hyphens
+# Define a function to remove non-ascii characters and replace spaces, hyphens, slashes, and other problematic characters
 code_block = """
 def remove_non_ascii(text):
-    return ''.join(i for i in text if ord(i)<128).replace(' ', '-')
+    # Remove non-ascii characters and replace spaces with hyphens
+    cleaned_text = ''.join(i for i in text if ord(i)<128).replace(' ', '-')
+    # Replace forward/backslashes, apostrophes, and ensure triple hyphens are reduced to single
+    cleaned_text = re.sub('[\\\\/:*?"<>|]', '-', cleaned_text)
+    cleaned_text = cleaned_text.replace('---', '-')
+    return cleaned_text
 """
 
 # Apply the function to the 'pagename' field
-arcpy.CalculateField_management(joinFeatures, join_field, "remove_non_ascii(!{}!)".format(join_field), "PYTHON3", code_block)
+arcpy.CalculateField_management(joinFeatures, indexField, "remove_non_ascii(!{}!)".format(indexField), "PYTHON3", code_block)
 
 # Get a list of only point feature classes in the gdb
 featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
 
 # Loop through each feature class
 for targetFeatures in featureclasses:
-    # Exclude the original joinFeatures from the loopx
+    # Exclude the original joinFeatures from the loop
     if targetFeatures != joinFeatures:
         outfc = f"{targetFeatures}_pagename"
 

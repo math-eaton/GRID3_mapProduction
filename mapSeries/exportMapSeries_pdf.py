@@ -11,7 +11,7 @@ import re
 from datetime import datetime
 
 # Define variables for use case and resolution
-use_case = "implementation_2"
+use_case = "implementation-pdf"
 resolution = 300
 layout_size = "A1"
 
@@ -75,7 +75,7 @@ def export_layout(layout, output_path, format):
                            layers_attributes='NONE', georef_info=False, jpeg_compression_quality=75, 
                            output_as_image=False, embed_color_profile=True)
 
-export_format = "jpg"  # Change this to "pdf" if you want to export to PDF
+export_format = "pdf"  # Change this to "pdf" if you want to export to PDF
 
 exported_count = 0
 
