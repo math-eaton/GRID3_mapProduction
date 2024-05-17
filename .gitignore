@@ -1,1 +1,10 @@
 activateEnv.bat
+
+*.gdb
+
+*.xlsx
+*.csv
+
+*.pdf
+*.jpg
+*.png
