@@ -3,7 +3,6 @@
 # eg: python exportMapSeries.py 1 50
 # this will process pages from 1 to 50 ... ideally for concurrent usage
 
-
 import arcpy
 import os
 import sys
@@ -11,9 +10,9 @@ import re
 from datetime import datetime
 
 # Define variables for use case and resolution
-use_case = "implementation-pdf"
+use_case = "reference"
 resolution = 300
-layout_size = "A1"
+layout_size = "A2"
 
 # Function to format the current date in YYYYMMDD format
 def get_current_date_format():
@@ -21,7 +20,7 @@ def get_current_date_format():
 
 # Define the path to your pro project and
 # name of custom output directory
-project_path = r"E:\mheaton\cartography\NGA_microplanning_2024\NGA_microplanning_2024.aprx"
+project_path = r"E:\mheaton\cartography\COD_microplanning_042024\COD_microplanning_052024.aprx"
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -29,14 +28,18 @@ output_directory = os.path.join(os.path.dirname(project_path), output_foldername
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
-# Optional: Define keywords for layout selection, e.g., "LANDSCAPE" or "PORTRAIT"
-# If specified, the script will also select map series pages matching these keywords in the pageOrientation field. else leave empty []
-# layout_keywords = ["LANDSCAPE", "PORTRAIT"]
-layout_keywords = []
+# Define keywords for filtering
+# 1. Layout names containing any of these keywords
+layout_keywords = ["reference"]
 
-# Load the ArcGIS Pro project + time script
+# 2. Map series pages with index layer containing any of these keywords
+map_series_keywords = ["Maniema"]
+
+# 3. Page orientation filter (if the "ORIENTATION" field exists in the index layer)
+orientation_keywords = ["LANDSCAPE"]
+
+# Load the ArcGIS Pro project
 p = arcpy.mp.ArcGISProject(project_path)
-
 script_start_time = datetime.now()
 
 # Function to check if the layout matches specified keywords
@@ -44,6 +47,20 @@ def layout_matches_keywords(layout):
     if not layout_keywords:
         return True
     return any(keyword.lower() in layout.name.lower() for keyword in layout_keywords)
+
+# Function to check if the map series page matches specified keywords
+def page_matches_keywords(page_name):
+    if not map_series_keywords:
+        return True
+    return any(keyword.lower() in page_name.lower() for keyword in map_series_keywords)
+
+# Function to check if the page orientation matches specified keywords
+def orientation_matches_keywords(page_orientation):
+    if not orientation_keywords:
+        return True
+    if page_orientation is None:
+        return False
+    return any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)
 
 # Function to check for the existence of a field in a layer
 def field_exists(layer, field_name):
@@ -83,32 +100,32 @@ for layout in p.listLayouts():
     if layout.mapSeries and layout.mapSeries.enabled and layout_matches_keywords(layout):
         ms = layout.mapSeries
         index_layer = ms.indexLayer
-        page_orientation_exists = field_exists(index_layer, "pageOrientation")
+        orientation_field_exists = field_exists(index_layer, "ORIENTATION")
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
 
         # Retrieve start and end page numbers from command-line arguments
         start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1
         end_page = int(sys.argv[2]) if len(sys.argv) > 2 else ms.pageCount
 
-        # process only the specified range of pages based on args
+        # Process only the specified range of pages based on args
         for pageNum in range(start_page, end_page + 1):
             ms.currentPageNumber = pageNum
             print(f"Processing Map Series Page: {pageNum}")
             original_page_name = getattr(ms.pageRow, str(name_field))
 
-
             # Sanitize the page name
             page_name = sanitize_filename(original_page_name).upper()
 
-            # Check if page_orientation field exists and obtain its value if it does
-            page_orientation = getattr(ms.pageRow, "pageOrientation", "").upper() if page_orientation_exists else None
-            
-            # Apply page filtering based on keyword (e.g. "jigawa" state), layout keywords, and optional page orientation
-            if "ogun".upper() in page_name and (not layout_keywords or (page_orientation and page_orientation in layout_keywords)):
+            # Check if orientation field exists and obtain its value if it does
+            page_orientation = getattr(ms.pageRow, "ORIENTATION", None)
+            page_orientation = page_orientation.upper() if page_orientation else None
+
+            # Apply page filtering based on keywords, layout keywords, and optional orientation keywords
+            if page_matches_keywords(page_name) and (not orientation_field_exists or orientation_matches_keywords(page_orientation)):
                 page_start_time = datetime.now()
 
                 # Ensure the filename is unique within the custom output directory
-                base_output_name = f"{layout_size}_{page_name}_{use_case}_{resolution}dpi_{get_current_date_format()}"
+                base_output_name = f"{layout_size}_{page_name}_{use_case}_{get_current_date_format()}"
                 output_name = unique_filename(output_directory, base_output_name, f".{export_format}")
                 output_path = os.path.join(output_directory, output_name)
                 
