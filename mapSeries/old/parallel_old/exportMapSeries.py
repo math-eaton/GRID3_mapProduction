@@ -4,6 +4,16 @@ import sys
 import re
 from datetime import datetime
 
+# Check if the correct number of arguments are provided
+if len(sys.argv) < 4:
+    print("Usage: python exportMapSeries.py <start_page> <end_page> <project_path>")
+    sys.exit(1)
+
+# Retrieve the command-line arguments
+start_page = int(sys.argv[1])
+end_page = int(sys.argv[2])
+project_path = sys.argv[3]
+
 # Define variables for use case and resolution
 use_case = "reference"
 resolution = 300
@@ -13,9 +23,7 @@ layout_size = "A2"
 def get_current_date_format():
     return datetime.now().strftime('%Y%m%d')
 
-# Define the path to your pro project and
-# name of custom output directory
-project_path = sys.argv[3]  # Accept the project path from the command line argument
+# Define the name of the custom output directory
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -82,7 +90,7 @@ def export_layout(layout, output_path, format):
     if format.lower() == "jpg":
         layout.exportToJPEG(output_path, resolution=resolution, jpeg_quality=75)
     elif format.lower() == "pdf":
-        layout.exportToPDF(output_path, resolution=resolution, image_quality='BEST', 
+        layout.exportToPDF(output_path, resolution=resolution, image_quality='NORMAL', 
                            compress_vector_graphics=True, image_compression='JPEG', embed_fonts=True,
                            layers_attributes='NONE', georef_info=False, jpeg_compression_quality=75, 
                            output_as_image=False, embed_color_profile=True)
@@ -97,10 +105,6 @@ for layout in p.listLayouts():
         index_layer = ms.indexLayer
         orientation_field_exists = field_exists(index_layer, "ORIENTATION")
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
-
-        # Retrieve start and end page numbers from command-line arguments
-        start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-        end_page = int(sys.argv[2]) if len(sys.argv) > 2 else ms.pageCount
 
         # Process only the specified range of pages based on args
         for pageNum in range(start_page, end_page + 1):
