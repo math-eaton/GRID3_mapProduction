@@ -10,8 +10,8 @@ import re
 from datetime import datetime
 
 # Define variables for use case and resolution
-use_case = "reference"
-resolution = 300
+use_case = "microplanification"
+resolution = 250
 layout_size = "A2"
 
 # Function to format the current date in YYYYMMDD format
@@ -20,7 +20,7 @@ def get_current_date_format():
 
 # Define the path to your pro project and
 # name of custom output directory
-project_path = r"E:\mheaton\cartography\COD_microplanning_042024\COD_microplanning_052024.aprx"
+project_path = r"E:\mheaton\cartography\COD_microplanning_042024\COD_microplanning_052024_2.aprx"
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -30,13 +30,16 @@ if not os.path.exists(output_directory):
 
 # Define keywords for filtering
 # 1. Layout names containing any of these keywords
-layout_keywords = ["reference"]
+layout_keywords = ["microplanification"]
 
 # 2. Map series pages with index layer containing any of these keywords
 map_series_keywords = ["Maniema"]
 
-# 3. Page orientation filter (if the "ORIENTATION" field exists in the index layer)
-orientation_keywords = ["LANDSCAPE"]
+# 3. Page orientation filter (if the "pageOrientation" field exists in the index layer)
+# orientation_keywords = ["LANDSCAPE"]
+# orientation_keywords = ["PORTRAIT"]
+orientation_keywords = None
+
 
 # Load the ArcGIS Pro project
 p = arcpy.mp.ArcGISProject(project_path)
@@ -53,14 +56,6 @@ def page_matches_keywords(page_name):
     if not map_series_keywords:
         return True
     return any(keyword.lower() in page_name.lower() for keyword in map_series_keywords)
-
-# Function to check if the page orientation matches specified keywords
-def orientation_matches_keywords(page_orientation):
-    if not orientation_keywords:
-        return True
-    if page_orientation is None:
-        return False
-    return any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)
 
 # Function to check for the existence of a field in a layer
 def field_exists(layer, field_name):
@@ -87,12 +82,12 @@ def export_layout(layout, output_path, format):
     if format.lower() == "jpg":
         layout.exportToJPEG(output_path, resolution=resolution, jpeg_quality=75)
     elif format.lower() == "pdf":
-        layout.exportToPDF(output_path, resolution=resolution, image_quality='BEST', 
+        layout.exportToPDF(output_path, resolution=resolution, image_quality='BETTER', 
                            compress_vector_graphics=True, image_compression='JPEG', embed_fonts=True,
                            layers_attributes='NONE', georef_info=False, jpeg_compression_quality=75, 
                            output_as_image=False, embed_color_profile=True)
 
-export_format = "pdf"  # Change this to "pdf" if you want to export to PDF
+export_format = "pdf"  # "pdf" or "jpg"
 
 exported_count = 0
 
@@ -100,7 +95,7 @@ for layout in p.listLayouts():
     if layout.mapSeries and layout.mapSeries.enabled and layout_matches_keywords(layout):
         ms = layout.mapSeries
         index_layer = ms.indexLayer
-        orientation_field_exists = field_exists(index_layer, "ORIENTATION")
+        orientation_field_exists = field_exists(index_layer, "pageOrientation")
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
 
         # Retrieve start and end page numbers from command-line arguments
@@ -117,11 +112,11 @@ for layout in p.listLayouts():
             page_name = sanitize_filename(original_page_name).upper()
 
             # Check if orientation field exists and obtain its value if it does
-            page_orientation = getattr(ms.pageRow, "ORIENTATION", None)
+            page_orientation = getattr(ms.pageRow, "pageOrientation", None)
             page_orientation = page_orientation.upper() if page_orientation else None
 
             # Apply page filtering based on keywords, layout keywords, and optional orientation keywords
-            if page_matches_keywords(page_name) and (not orientation_field_exists or orientation_matches_keywords(page_orientation)):
+            if page_matches_keywords(page_name) and (not orientation_keywords or not orientation_field_exists or any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)):
                 page_start_time = datetime.now()
 
                 # Ensure the filename is unique within the custom output directory
