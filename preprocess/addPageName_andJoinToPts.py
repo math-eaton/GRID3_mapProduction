@@ -44,10 +44,9 @@ featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
 for targetFeatures in featureclasses:
     # Exclude the original joinFeatures from the loop
     if targetFeatures != joinFeatures:
-        for pagename_field in pagename_fields:
-            outfc = f"{targetFeatures}_{pagename_field}"
+        outfc = f"{targetFeatures}_pagename"
 
-            # Use the Spatial Join tool to join the two feature classes.
-            arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)
+        # Use the Spatial Join tool to join the point feature class with the polygon feature class
+        arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc, join_type="KEEP_COMMON")
 
 print("done.")
