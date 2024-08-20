@@ -3,21 +3,24 @@ from arcpy import env
 import re
 
 # Set environment settings
-env.workspace = r"E:\mheaton\cartography\NGA_microplanning_2024\data\processing\Ogun_NMEP_maps_layers_processing.gdb"
+env.workspace = r"E:\mheaton\cartography\COD_KasaiOriental_microplanning_20240820\data\input\GRID3_COD_KO_consolidated_20240711.gdb"
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "GRID3_NGA_Ogun_wards_ek_20240328"
-indexField = "pagename"
+joinFeatures = "GRID3_COD_KO_Health_areas_consolidation_20240711"
+admin_fields = ["province", "zonesante", "airesante"]
+pagename_fields = ["pagename_admin1", "pagename_admin2", "pagename_admin3"]
 
-# Ensure the field does not already exist to prevent an error
-fields = [f.name for f in arcpy.ListFields(joinFeatures)]
-if indexField not in fields:
-    arcpy.AddField_management(joinFeatures, indexField, "TEXT")
+# Ensure the fields do not already exist to prevent an error
+existing_fields = [f.name for f in arcpy.ListFields(joinFeatures)]
+for pagename_field in pagename_fields:
+    if pagename_field not in existing_fields:
+        arcpy.AddField_management(joinFeatures, pagename_field, "TEXT")
 
-# Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-# Ensure field names are correctly referenced
-arcpy.CalculateField_management(joinFeatures, indexField, "'RDC_' + !province! + '_' + !zonesante! + '_' + !airesante!", "PYTHON3")
+# Create pagename fields for each administrative level
+arcpy.CalculateField_management(joinFeatures, pagename_fields[0], "'RDC_' + !{}!".format(admin_fields[0]), "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, pagename_fields[1], "'RDC_' + !{}! + '_' + !{}!".format(admin_fields[0], admin_fields[1]), "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, pagename_fields[2], "'RDC_' + !{}! + '_' + !{}! + '_' + !{}!".format(admin_fields[0], admin_fields[1], admin_fields[2]), "PYTHON3")
 
 # Define a function to remove non-ascii characters and replace spaces, hyphens, slashes, and other problematic characters
 code_block = """
@@ -30,8 +33,9 @@ def remove_non_ascii(text):
     return cleaned_text
 """
 
-# Apply the function to the 'pagename' field
-arcpy.CalculateField_management(joinFeatures, indexField, "remove_non_ascii(!{}!)".format(indexField), "PYTHON3", code_block)
+# Apply the function to the 'pagename' fields
+for pagename_field in pagename_fields:
+    arcpy.CalculateField_management(joinFeatures, pagename_field, "remove_non_ascii(!{}!)".format(pagename_field), "PYTHON3", code_block)
 
 # Get a list of only point feature classes in the gdb
 featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
@@ -40,9 +44,10 @@ featureclasses = arcpy.ListFeatureClasses(feature_type="Point")
 for targetFeatures in featureclasses:
     # Exclude the original joinFeatures from the loop
     if targetFeatures != joinFeatures:
-        outfc = f"{targetFeatures}_pagename"
+        for pagename_field in pagename_fields:
+            outfc = f"{targetFeatures}_{pagename_field}"
 
-        # Use the Spatial Join tool to join the two feature classes.
-        arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)
+            # Use the Spatial Join tool to join the two feature classes.
+            arcpy.analysis.SpatialJoin(targetFeatures, joinFeatures, outfc)
 
 print("done.")
