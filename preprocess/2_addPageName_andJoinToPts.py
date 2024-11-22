@@ -5,14 +5,15 @@ import re
 
 
 # Set environment settings
-env.workspace = r"E:\mheaton\cartography\COD_Tschopo-Mongala_microplanning_20240918\RDC_Tschopo-Mongala_aireSante_20240918\DATA\TP_MG_microplanning_20240925.gdb"
-env.overwriteOutput = True
+env.workspace = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241121\input\input.gdb"
 
 # Set the target geodatabase for output feature classes
-target_gdb = r"E:\mheaton\cartography\COD_Tschopo-Mongala_microplanning_20240918\RDC_Tschopo-Mongala_aireSante_20240918\DATA\TP_MG_microplanning_pageIndex_20240925.gdb"
+target_gdb = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241121\processed\processed.gdb"
+
+env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "TP_MG_healthAreas_merge_20240919"
+joinFeatures = "merged_aireSante_20241121"
 admin_fields = ["province", "antenne" ,"zonesante", "airesante"]
 
 # Dynamically generate pagename fields based on admin_fields
@@ -87,17 +88,20 @@ if perform_dissolve:
         if arcpy.Exists(dissolve_output):
             print(f"Dissolved output created: {dissolve_output}")
             
-            # Optional: Convert the dissolved polygon to a line feature class
-            if perform_polygon_to_line:
-                line_output = f"{dissolve_output}_lineFC"
-                arcpy.management.PolygonToLine(dissolve_output, line_output)
+                    # Optional: Convert the dissolved polygon to a line feature class
+        desc = arcpy.Describe(dissolve_output)
+        if desc.shapeType == "Polygon":
+            line_output = f"{dissolve_output}_lineFC"
+            arcpy.management.PolygonToLine(dissolve_output, line_output)
 
-                if arcpy.Exists(line_output):
-                    print(f"Polygon to line output created: {line_output}")
-                else:
-                    print(f"Failed to create polygon to line output: {line_output}")
-
+            if arcpy.Exists(line_output):
+                print(f"Polygon to line output created: {line_output}")
+            else:
+                print(f"Failed to create polygon to line output: {line_output}")
         else:
-            print(f"Failed to create dissolved output: {dissolve_output}")
+            print(f"The output feature class is not a polygon: {dissolve_output}")
+
+    else:
+        print(f"Failed to create dissolved output: {dissolve_output}")
 
 print("done.")
