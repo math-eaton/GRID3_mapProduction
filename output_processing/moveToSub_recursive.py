@@ -4,16 +4,16 @@ import shutil
 def organize_pdfs_in_subfolders(folder):
     # Walk through all folders and subfolders
     for root, dirs, files in os.walk(folder):
-        # Filter for PDF files
-        pdf_files = [file for file in files if file.lower().endswith('.jpg')]
+        # Filter for filetype
+        map_files = [file for file in files if file.lower().endswith('.jpg')]
         
-        # If there are PDF files, organize them
-        if pdf_files:
-            for pdf_file in pdf_files:
+        # If there is this filetype, organize them
+        if map_files:
+            for pdf_file in map_files:
                 # Extract the target folder name based on the delimiter ('_')
                 # Adjust the index value based on intended split level
                 try:
-                    target = pdf_file.split('_')[3]
+                    target = pdf_file.split('_')[5]
                 except IndexError:
                     # Handle case where filename does not contain enough parts to split
                     print(f"Skipping {pdf_file}: cannot extract target folder from filename")
@@ -32,5 +32,5 @@ def organize_pdfs_in_subfolders(folder):
     print("PDFs organized within their respective subfolders.")
 
 # Define the main directory to start organizing PDFs
-folder = r'E:\mheaton\cartography\NGA_microplanning_2024\OUTPUT_A1_implementation_2_20240421'
+folder = r'E:\mheaton\cartography\COD_PEV_smallScale_overviews_20241007\COD_PEV_overviews_minimal_20241102\OUTPUT_A2_wireframe_20241115'
 organize_pdfs_in_subfolders(folder)

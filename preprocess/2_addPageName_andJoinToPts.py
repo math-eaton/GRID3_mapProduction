@@ -5,15 +5,15 @@ import re
 
 
 # Set environment settings
-env.workspace = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241121\input\input.gdb"
+env.workspace = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\input\input.gdb"
 
 # Set the target geodatabase for output feature classes
-target_gdb = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241121\processed\processed.gdb"
+target_gdb = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\processed\processed.gdb"
 
 env.overwriteOutput = True
 
 # Set the local variables
-joinFeatures = "merged_aireSante_20241121"
+joinFeatures = "GRID3_COD_health_areas_v4_0"
 admin_fields = ["province", "antenne" ,"zonesante", "airesante"]
 
 # Dynamically generate pagename fields based on admin_fields

@@ -17,7 +17,8 @@ if indexField not in fields:
     arcpy.AddField_management(joinFeatures, indexField, "TEXT")
 
 # Concatenate 'admin1', 'admin2', and 'admin3' fields with an underscore separator
-arcpy.CalculateField_management(joinFeatures, indexField, "'RDC_' + !province! + '_' + !zonesante! + '_' + !airesante!", "PYTHON3")
+# arcpy.CalculateField_management(joinFeatures, indexField, "'RDC_' + !province! + '_' + !zonesante! + '_' + !airesante!", "PYTHON3")
+arcpy.CalculateField_management(joinFeatures, indexField, "'NGA_OG_' + !LGA! + '_' + !WARD!", "PYTHON3")
 
 # Define a consolidated function to clean up the text
 code_block = """

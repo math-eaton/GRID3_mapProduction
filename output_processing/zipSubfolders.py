@@ -2,7 +2,7 @@ import os
 import zipfile
 
 # Define the input directory containing folders to be compressed
-input_directory = r'D:\pathtoDir'
+input_directory = r'Z:\BMGFGRID\ScienceData$\mheaton\Documents\OUTPUT_A2_microplanification_20241208\KASAI-ORIENTAL_MICROPLANIFICATION_20241208'
 
 # Iterate through all subdirectories in the input directory
 for root, dirs, _ in os.walk(input_directory):
@@ -20,5 +20,5 @@ for root, dirs, _ in os.walk(input_directory):
                     file_path = os.path.join(folder_root, file)
                     # Archive file with its relative path inside the folder
                     zipf.write(file_path, os.path.relpath(file_path, folder_path))
-
+       
 print('compressed all subfolders.')

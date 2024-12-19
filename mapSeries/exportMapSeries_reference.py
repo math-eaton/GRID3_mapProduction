@@ -10,8 +10,8 @@ import re
 from datetime import datetime
 
 # Define variables for use case and resolution
-use_case = "microplanification"
-resolution = 250
+use_case = "reference_x"
+resolution = 300
 layout_size = "A2"
 
 # Function to format the current date in YYYYMMDD format
@@ -20,7 +20,7 @@ def get_current_date_format():
 
 # Define the path to your pro project and
 # name of custom output directory
-project_path = r"E:\mheaton\cartography\COD_microplanning_042024\COD_microplanning_052024_2.aprx"
+project_path = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\COD_EAF_reference_microplanning_consolidation_20241205.aprx"
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -30,15 +30,18 @@ if not os.path.exists(output_directory):
 
 # Define keywords for filtering
 # 1. Layout names containing any of these keywords
-layout_keywords = ["microplanification"]
+layout_keywords = ["a2_reference"]
 
-# 2. Map series pages with index layer containing any of these keywords
-map_series_keywords = ["Maniema"]
+# 2. Map series pages with index layer containing any of these keywords (or "ALL" for no filtering)
+map_series_keywords = ["RDC_Haut"]
+# map_series_keywords = ["ALL"]
 
-# 3. Page orientation filter (if the "pageOrientation" field exists in the index layer)
+# 3. Page orientation filter (or if the "overlaps_txt" field exists in the index layer)
 # orientation_keywords = ["LANDSCAPE"]
 # orientation_keywords = ["PORTRAIT"]
+# orientation_keywords = ["yes"]
 orientation_keywords = None
+
 
 
 # Load the ArcGIS Pro project
@@ -53,7 +56,7 @@ def layout_matches_keywords(layout):
 
 # Function to check if the map series page matches specified keywords
 def page_matches_keywords(page_name):
-    if not map_series_keywords:
+    if not map_series_keywords or map_series_keywords == ["ALL"]:
         return True
     return any(keyword.lower() in page_name.lower() for keyword in map_series_keywords)
 
@@ -87,7 +90,7 @@ def export_layout(layout, output_path, format):
                            layers_attributes='NONE', georef_info=False, jpeg_compression_quality=75, 
                            output_as_image=False, embed_color_profile=True)
 
-export_format = "pdf"  # "pdf" or "jpg"
+export_format = "jpg"  # "pdf" or "jpg"
 
 exported_count = 0
 
@@ -95,8 +98,9 @@ for layout in p.listLayouts():
     if layout.mapSeries and layout.mapSeries.enabled and layout_matches_keywords(layout):
         ms = layout.mapSeries
         index_layer = ms.indexLayer
-        orientation_field_exists = field_exists(index_layer, "pageOrientation")
+        orientation_field_exists = field_exists(index_layer, "ORIENTATION")
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
+        # number_field = "pagename_zonesante" # optional
 
         # Retrieve start and end page numbers from command-line arguments
         start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1
@@ -107,20 +111,24 @@ for layout in p.listLayouts():
             ms.currentPageNumber = pageNum
             print(f"Processing Map Series Page: {pageNum}")
             original_page_name = getattr(ms.pageRow, str(name_field))
+            # original_page_number = getattr(ms.pageRow, str(number_field))
 
-            # Sanitize the page name
+            # Sanitize the page name and page number
             page_name = sanitize_filename(original_page_name).upper()
+            # page_number = sanitize_filename(original_page_number).upper()
 
             # Check if orientation field exists and obtain its value if it does
-            page_orientation = getattr(ms.pageRow, "pageOrientation", None)
+            page_orientation = getattr(ms.pageRow, "overlaps_txt", None)
             page_orientation = page_orientation.upper() if page_orientation else None
 
             # Apply page filtering based on keywords, layout keywords, and optional orientation keywords
             if page_matches_keywords(page_name) and (not orientation_keywords or not orientation_field_exists or any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)):
                 page_start_time = datetime.now()
 
-                # Ensure the filename is unique within the custom output directory
+                # Generate filename with both PAGE NUMBER and PAGE NAME
+                # base_output_name = f"{layout_size}_{page_number}_{page_name}_{use_case}_{get_current_date_format()}"
                 base_output_name = f"{layout_size}_{page_name}_{use_case}_{get_current_date_format()}"
+
                 output_name = unique_filename(output_directory, base_output_name, f".{export_format}")
                 output_path = os.path.join(output_directory, output_name)
                 

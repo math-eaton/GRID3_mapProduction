@@ -10,12 +10,13 @@ def get_joined_field_name(joined_feature_class, field_name):
     return full_field_name
 
 # Define input and output feature classes
-input_feature_class = r"E:\mheaton\cartography\COD_PEV_smallScale_overviews_20241007\data\merged.gdb\merged_polygon_zonesante_dissolved"
-output_feature_class = r"E:\mheaton\cartography\COD_PEV_smallScale_overviews_20241007\data\merged.gdb\merged_polygon_zonesante_dissolved_ORIENTATION"
+input_feature_class = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\processed\processed.gdb\GRID3_COD_health_areas_v4_0_pagename_airesante_dissolved"
+output_feature_class = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\processed\processed.gdb\GRID3_COD_health_areas_v4_0_pagename_airesante_dissolved_orientation"
 
 # Create the minimum bounding rectangle
 # TODO: ditto common field name
-arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename_zonesante", "MBG_FIELDS")
+arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename_airesante", "MBG_FIELDS")
+# arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename_zonesante", "MBG_FIELDS")
 # arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename_province", "MBG_FIELDS")
 # arcpy.MinimumBoundingGeometry_management(input_feature_class, output_feature_class, "RECTANGLE_BY_AREA", "LIST", "pagename_antenne", "MBG_FIELDS")
 
@@ -60,7 +61,8 @@ arcpy.MakeFeatureLayer_management(input_feature_class, "input_layer")
 arcpy.MakeFeatureLayer_management(output_feature_class, "output_layer")
 
 # Perform the join operation - TODO: make common field name more flexible
-arcpy.AddJoin_management("input_layer", "pagename_zonesante", "output_layer", "pagename_zonesante", "KEEP_COMMON")
+arcpy.AddJoin_management("input_layer", "pagename_airesante", "output_layer", "pagename_airesante", "KEEP_COMMON")
+# arcpy.AddJoin_management("input_layer", "pagename_zonesante", "output_layer", "pagename_zonesante", "KEEP_COMMON")
 # arcpy.AddJoin_management("input_layer", "pagename_province", "output_layer", "pagename_province", "KEEP_COMMON")
 # arcpy.AddJoin_management("input_layer", "pagename_antenne", "output_layer", "pagename_antenne", "KEEP_COMMON")
 
