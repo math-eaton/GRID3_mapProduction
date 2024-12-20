@@ -3,7 +3,7 @@ import re
 import shutil
 
 # Directory containing the files
-base_directory = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\OUTPUT_A2_reference_20241210\HAUT-KATANGA_REFERENCE"  # Change this to your directory
+base_directory = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\OUTPUT_A2_microplanification_20241219"  # Change this to your directory
 
 # Create the delete subfolder if it does not exist
 delete_folder = os.path.join(base_directory, "delete")

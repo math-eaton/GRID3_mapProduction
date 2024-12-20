@@ -2,7 +2,7 @@ import os
 import shutil
 
 # Specify the target directory where you want to search for PDFs
-target_directory = r'E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\OUTPUT_A2_reference_20241210\HAUT-KATANGA_REFERENCE'
+target_directory = r'E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\OUTPUT_A2_reference_20241210\SANKURU_REFERENCE_Copy'
 
 # Recursively search for PDF files in the target directory
 for root, dirs, files in os.walk(target_directory):

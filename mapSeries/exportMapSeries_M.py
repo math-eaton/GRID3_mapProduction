@@ -1,8 +1,3 @@
-# assume the first command-line argument (after the script name) is the start page,
-# and the second argument is the end page.
-# eg: python exportMapSeries.py 1 50
-# this will process pages from 1 to 50 ... ideally for concurrent usage
-
 import arcpy
 import os
 import sys
@@ -10,7 +5,7 @@ import re
 from datetime import datetime
 
 # Define variables for use case and resolution
-use_case = "reference_x"
+use_case = "microplanification"
 resolution = 300
 layout_size = "A2"
 
@@ -20,7 +15,7 @@ def get_current_date_format():
 
 # Define the path to your pro project and
 # name of custom output directory
-project_path = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\COD_EAF_reference_microplanning_consolidation_20241205.aprx"
+project_path = r"E:\\mheaton\\cartography\\COD_EAF_reference_microplanning_consolidation_20241121\\COD_EAF_reference_microplanning_consolidation_20241205_exportCopy_microplan.aprx"
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -29,20 +24,9 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
 # Define keywords for filtering
-# 1. Layout names containing any of these keywords
-layout_keywords = ["a2_reference"]
-
-# 2. Map series pages with index layer containing any of these keywords (or "ALL" for no filtering)
-map_series_keywords = ["RDC_Haut"]
-# map_series_keywords = ["ALL"]
-
-# 3. Page orientation filter (or if the "overlaps_txt" field exists in the index layer)
-# orientation_keywords = ["LANDSCAPE"]
-# orientation_keywords = ["PORTRAIT"]
-# orientation_keywords = ["yes"]
-orientation_keywords = None
-
-
+layout_keywords = ["a2_microplanification"]
+map_series_keywords = ["RDC_Sankuru"]
+orientation_keywords = None  # Example: ["LANDSCAPE", "PORTRAIT"]
 
 # Load the ArcGIS Pro project
 p = arcpy.mp.ArcGISProject(project_path)
@@ -70,16 +54,6 @@ def sanitize_filename(name):
     name = re.sub(forbidden_chars, '', name)
     return name
 
-def unique_filename(directory, name, extension):
-    filename = f"{name}{extension}"
-    filepath = os.path.join(directory, filename)
-    counter = 1
-    while os.path.exists(filepath):
-        filename = f"{name}_{counter}{extension}"
-        filepath = os.path.join(directory, filename)
-        counter += 1
-    return filename
-
 def export_layout(layout, output_path, format):
     """Exports the given layout to the specified format with comparable settings."""
     if format.lower() == "jpg":
@@ -91,8 +65,7 @@ def export_layout(layout, output_path, format):
                            output_as_image=False, embed_color_profile=True)
 
 export_format = "jpg"  # "pdf" or "jpg"
-
-exported_count = 0
+exported_pages = {}
 
 for layout in p.listLayouts():
     if layout.mapSeries and layout.mapSeries.enabled and layout_matches_keywords(layout):
@@ -100,48 +73,89 @@ for layout in p.listLayouts():
         index_layer = ms.indexLayer
         orientation_field_exists = field_exists(index_layer, "ORIENTATION")
         name_field = ms.pageNameField.name if hasattr(ms.pageNameField, 'name') else ms.pageNameField
-        # number_field = "pagename_zonesante" # optional
 
         # Retrieve start and end page numbers from command-line arguments
         start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1
         end_page = int(sys.argv[2]) if len(sys.argv) > 2 else ms.pageCount
 
-        # Process only the specified range of pages based on args
+        print(f"Processing layout: {layout.name}")
+        print(f"Start page: {start_page}, End page: {end_page}, Total pages: {ms.pageCount}")
+
         for pageNum in range(start_page, end_page + 1):
             ms.currentPageNumber = pageNum
             print(f"Processing Map Series Page: {pageNum}")
-            original_page_name = getattr(ms.pageRow, str(name_field))
-            # original_page_number = getattr(ms.pageRow, str(number_field))
 
-            # Sanitize the page name and page number
+            original_page_name = getattr(ms.pageRow, str(name_field))
             page_name = sanitize_filename(original_page_name).upper()
-            # page_number = sanitize_filename(original_page_number).upper()
+
+            # Skip already exported pages
+            if page_name in exported_pages:
+                print(f"Skipping already exported page: {page_name}")
+                continue
 
             # Check if orientation field exists and obtain its value if it does
             page_orientation = getattr(ms.pageRow, "overlaps_txt", None)
             page_orientation = page_orientation.upper() if page_orientation else None
 
-            # Apply page filtering based on keywords, layout keywords, and optional orientation keywords
-            if page_matches_keywords(page_name) and (not orientation_keywords or not orientation_field_exists or any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)):
-                page_start_time = datetime.now()
+            page_start_time = datetime.now()
 
-                # Generate filename with both PAGE NUMBER and PAGE NAME
-                # base_output_name = f"{layout_size}_{page_number}_{page_name}_{use_case}_{get_current_date_format()}"
-                base_output_name = f"{layout_size}_{page_name}_{use_case}_{get_current_date_format()}"
 
-                output_name = unique_filename(output_directory, base_output_name, f".{export_format}")
-                output_path = os.path.join(output_directory, output_name)
-                
-                export_layout(layout, output_path, export_format)
-                
+            # Apply page filtering based on keywords and optional orientation keywords
+            if page_matches_keywords(page_name) and (
+                not orientation_keywords or not orientation_field_exists or
+                any(keyword.lower() == page_orientation.lower() for keyword in orientation_keywords)):
+
+                # Get the ObjectID field name for the index layer
+                object_id_field = arcpy.Describe(index_layer).OIDFieldName
+
+                # Get the ObjectID of the current pageRow
+                object_id = getattr(ms.pageRow, object_id_field)
+
+                # Query the feature using the ObjectID to get its geometry
+                with arcpy.da.SearchCursor(index_layer, ["SHAPE@"], f"{object_id_field} = {object_id}") as cursor:
+                    for row in cursor:
+                        geometry = row[0]
+                        part_count = geometry.partCount
+
+                        if part_count > 1:  # Multipart polygon
+                            for part_index in range(part_count):
+                                unique_page_number = part_index + 1
+                                if (page_name, unique_page_number) in exported_pages:
+                                    continue
+
+                                exported_pages[(page_name, unique_page_number)] = True
+
+                                # Generate filename for this part
+                                base_output_name = f"{layout_size}_{use_case}_{page_name}_{unique_page_number}_{get_current_date_format()}"
+                                output_name = f"{base_output_name}.{export_format}"
+                                output_path = os.path.join(output_directory, output_name)
+
+                                export_layout(layout, output_path, export_format)
+                                print(f"Exported: {output_name} (Part {unique_page_number})")
+
+                        else:  # Single-part polygon
+                            unique_page_number = 1
+                            if (page_name, unique_page_number) in exported_pages:
+                                continue
+
+                            exported_pages[(page_name, unique_page_number)] = True
+
+                            # Generate filename for the single-part polygon
+                            base_output_name = f"{layout_size}_{use_case}_{page_name}_{unique_page_number}_{get_current_date_format()}"
+                            output_name = f"{base_output_name}.{export_format}"
+                            output_path = os.path.join(output_directory, output_name)
+
+                            export_layout(layout, output_path, export_format)
+                            print(f"Exported: {output_name}")
+
                 page_end_time = datetime.now()
                 page_creation_time = page_end_time - page_start_time
                 total_elapsed_time = page_end_time - script_start_time
-                
+
                 print(f"Exported: {output_name} to {output_directory}")
                 print(f"Page creation time: {page_creation_time}")
                 print(f"Total elapsed time: {total_elapsed_time}")
-                print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 del p
 print("done.")
