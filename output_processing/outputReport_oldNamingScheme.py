@@ -9,20 +9,23 @@ import random
 def parse_filename(filename):
     """Parse the filename into components based on underscores."""
     parts = filename.split('_')
-    if len(parts) < 9:
-        return None  # Invalid filename structure
+    if len(parts) < 7:  # Ensure the filename has enough parts
+        return None
 
+    # Extract components from the filename
     return {
         'PageSize': parts[0],
-        'UseCase': parts[1],
-        'Admin0Country': parts[2],
-        'Admin1Province': parts[3],
-        'Admin2Antenne': parts[4],
-        'Admin3ZoneSante': parts[5],
-        'Admin4AireSante': parts[6],
-        'UniquePageSequential': parts[7],
-        'Date': parts[8].split('.')[0],  # Remove extension
+        'Admin0Country': parts[1],
+        'Admin1Province': parts[2],
+        'Admin2Antenne': parts[3],
+        'Admin3ZoneSante': parts[4],
+        'Admin4AireSante': parts[5],
+        'UseCase': parts[6],
+        'Date': parts[7].split('.')[0] if len(parts) == 8 else parts[7],
+        'UniquePageSequential': int(parts[8].split('.')[0]) if len(parts) > 8 else 0
     }
+
+#A2_RDC_HAUT-KATANGA_LUBUMBASHI_VANGU_VANGU_reference_20241215_1
 
 def summarize_directory(directory):
     """Generate a flexible hierarchical summary."""
@@ -49,7 +52,7 @@ def summarize_directory(directory):
 
         # Build progressive keys for hierarchy dynamically
         for i in range(len(hierarchy)):
-            key = "_".join(parsed[h] for h in hierarchy[:i + 1])
+            key = "_".join(str(parsed[h]) for h in hierarchy[:i + 1])  # Ensure all parts are strings
             data["_".join(hierarchy[:i + 1])][key].add(filename)
 
     # Build summary report
