@@ -111,7 +111,7 @@ def generate_qa_qc_data(directory, copy_to_check=True):
         file_map[admin3_key].append(filename)
 
     # Select one random file per Admin3ZoneSante
-    check_dir = os.path.join(directory, "check")
+    check_dir = os.path.join(directory, "0_check")
     if copy_to_check:
         os.makedirs(check_dir, exist_ok=True)  # Ensure the "check" directory exists
 

@@ -1,15 +1,18 @@
 import arcpy
 from arcpy import env
 import re
+import os
 
-
+data_path = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_KS-MG-TP_20241219\data\20241220"
+input_path = r"\input\input.gdb"
+processed_path = r"\processed\processed.gdb"
 
 # Set environment settings
-env.workspace = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\input\input.gdb"
+env.workspace = os.path.join(data_path, input_path.strip("\\"))
 
 # Set the target geodatabase for output feature classes
-target_gdb = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_consolidation_20241121\data\20241205\processed\processed.gdb"
-
+target_gdb = os.path.join(data_path, processed_path.strip("\\"))
+print(env.workspace)
 env.overwriteOutput = True
 
 # Set the local variables
