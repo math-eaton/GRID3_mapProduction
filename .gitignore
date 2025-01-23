@@ -5,9 +5,9 @@ activateEnv.bat
 *.xlsx
 *.csv
 
-*.pdf
-*.jpg
-*.png
+# *.pdf
+# *.jpg
+# *.png
 drive_credentials.json
 
 # build output
