@@ -8,7 +8,7 @@ hero:
     file: ../../assets/logo.webp
   actions:
     - text: Start here
-      link: /guides/example/
+      link: /guides/01-initialization/
       icon: right-arrow
     - text: Go to GitHub repo
       link: https://github.com/math-eaton/GRID3_mapProduction
@@ -18,19 +18,20 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Sections
-
 <CardGrid stagger>
+	<Card title="Map gallery" icon="pencil">
+		See samples of existing GRID3 maps.
+	</Card>
+	<Card title="Manual" icon="add-document">
+		Read the docs.
+	</Card>
+	<Card title="Guides" icon="open-book">
+		Step-by-step walkthroughs for creating maps.
+	</Card>
+	<Card title="Appendix" icon="open-book">
+		Other useful information.
+	</Card>
 	<Card title="Codebase" icon="setting">
 		Access the mapping pipeline in [the GitHub repo](https://github.com/math-eaton/GRID3_mapProduction/tree/main/scripts/).
-	</Card>
-	<Card title="Map samples" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Documentation" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="FAQ" icon="open-book">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
 	</Card>
 </CardGrid>
