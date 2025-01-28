@@ -5,7 +5,7 @@ import starlight from '@astrojs/starlight';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://math-eaton.github.io',
-	// base: 'GRID3_mapProduction',  
+	base: '/GRID3_mapProduction',
 	integrations: [
 		starlight({
 			title: 'GRID3 Cartographic Standards Manual',
