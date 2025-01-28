@@ -22,8 +22,12 @@ export default defineConfig({
 					autogenerate: { directory: 'manual' },
 				},
 				{
+					label: 'Styling',
+					autogenerate: { directory: 'style' },
+				},
+				{
 					label: 'Guides',
-					autogenerate: { directory: 'guides' },
+					autogenerate: { directory: 'demos' },
 				},
 				{
 					label: 'Appendix',
