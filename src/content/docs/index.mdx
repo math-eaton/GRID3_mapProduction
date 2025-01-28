@@ -19,20 +19,20 @@ hero:
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
-	<Card title="Manual" icon="add-document">
-		Read the docs.
-	</Card>
 	{/* <LinkCard title="Read the docs." href="/guides/00-guides" /> */}
-	<Card title="Map gallery" icon="pencil">
-		See samples of existing GRID3 maps.
-	</Card>
-	<Card title="Guides" icon="open-book">
+	<Card title="Manual" icon="open-book">
 		Step-by-step walkthroughs for creating maps.
 	</Card>
-	<Card title="Appendix" icon="open-book">
+	{/* <Card title="Appendix" icon="open-book">
 		Other useful information.
+	</Card> */}
+		<Card title="Map gallery" icon="pencil">
+		See samples of existing GRID3 maps.
 	</Card>
 	<Card title="Codebase" icon="setting">
 		Access the mapping pipeline in [the GitHub repo](https://github.com/math-eaton/GRID3_mapProduction/tree/main/scripts/).
+	</Card>
+		<Card title="GRID3 data hub" icon="add-document">
+		View and download GRID3 data.
 	</Card>
 </CardGrid>
