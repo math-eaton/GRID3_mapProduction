@@ -19,19 +19,19 @@ export default defineConfig({
 			sidebar: [
 				{
 					label: 'Manual',
-					autogenerate: { directory: 'manual' },
+					autogenerate: { directory: '01-manual' },
 				},
 				{
-					label: 'Styling',
-					autogenerate: { directory: 'style' },
+					label: 'Style guide',
+					autogenerate: { directory: '02-style' },
 				},
 				{
-					label: 'Guides',
-					autogenerate: { directory: 'demos' },
+					label: 'Tutorials',
+					autogenerate: { directory: '03-demos' },
 				},
 				{
 					label: 'Appendix',
-					autogenerate: { directory: 'appendices' },
+					autogenerate: { directory: '04-appendices' },
 				},
 			],
 		}),
