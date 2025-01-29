@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.31.1",
+    "@astrojs/starlight-tailwind": "^3.0.0",
+    "@astrojs/tailwind": "^5.1.5",
     "@fontsource/lato": "^5.1.1",
     "astro": "^5.1.5",
     "gh-pages": "^6.3.0",
     "lorem-ipsum": "^2.0.8",
-    "sharp": "^0.32.5"
+    "sharp": "^0.32.5",
+    "tailwindcss": "^3.4.17"
   }
 }
