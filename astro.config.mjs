@@ -13,6 +13,7 @@ export default defineConfig({
             src: './src/assets/logo.png',
             replacesTitle: false,
         },
+        favicon: './favicon.png',
 		customCss: [
 			'./src/styles/tailwind.css',
 			// '@fontsource/fontsource/lato',

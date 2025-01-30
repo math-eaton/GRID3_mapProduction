@@ -11,9 +11,8 @@ export default {
 		  gray: colors.zinc,
 		},
 		fontFamily: {
-		  // Your preferred text font. Starlight uses a system font stack by default.
-		  sans: ['"Atkinson Hyperlegible"'],
-		  // Your preferred code font. Starlight uses system monospace fonts by default.
+		// sans: ['"Helvetica Neue"']
+		//   sans: ['"Arial"'],
 		//   mono: ['"IBM Plex Mono"'],
 		},
 	  },
