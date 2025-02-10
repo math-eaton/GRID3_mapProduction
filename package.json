@@ -1,0 +1,28 @@
+{
+  "name": "grid3-cartography",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.31.1",
+    "@astrojs/starlight-tailwind": "^3.0.0",
+    "@astrojs/tailwind": "^5.1.5",
+    "@fontsource/lato": "^5.1.1",
+    "astro": "^5.1.5",
+    "astro-carousel": "^3.0.2",
+    "gh-pages": "^6.3.0",
+    "lorem-ipsum": "^2.0.8",
+    "sharp": "^0.32.5",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

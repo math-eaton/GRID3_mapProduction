@@ -1,0 +1,56 @@
+---
+title: Exporting
+sidebar:
+  order: 3
+description: How to initialize a new GRID3 map series
+---
+import { FileTree } from '@astrojs/starlight/components';
+// import { Code } from '@astrojs/starlight/components';
+
+
+## ArcGIS settings
+
+## Python scripting
+
+## Quality checks
+
+## Organizing output directory
+
+1. Moving to sub-directories
+2. Finding and replacing text
+3. Reverting directory structure
+4. Zipping organized files
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent pretium dolor libero, nec aliquam massa luctus quis. Duis et libero felis. Nullam tortor metus, condimentum sed consequat vitae, fringilla id justo. Quisque at neque dapibus, tempus neque ac, hendrerit lacus. Integer massa nunc, fringilla nec ultrices sit amet, fringilla vitae urna. Phasellus rutrum efficitur odio, sit amet eleifend nibh imperdiet ac. Ut at volutpat elit, sed porta erat.
+
+A typical file delivery configuration would be structured like:
+
+<FileTree>
+
+- OUTPUT_PAGESIZE_USECASE_ADMIN0_ADMIN1_YYYYMMDD
+  - ADMIN2
+    - ADMIN3
+        - output1.ext
+        - output2.ext
+        - output3.ext
+
+</FileTree>
+
+Where ``` output.ext ``` is the original file named according to its specific administrative level, plus file extension.
+
+In practice, for a *health area* reference map (admin level 4) of Mukeba, in *health zone* Tshishimbi, *antenna* Mbuji-Mayi, province Kasaï-Oriental, *country* République Démocratique du Congo:
+
+<FileTree>
+
+- OUTPUT_A2_REFERENCE_RDC_KASAI-ORIENTAL_20250101
+  - MBUJI-MAYI
+    - ...
+    - TSHILENGE/
+    {/* - TSHISHIMBI */}
+        - **A2_REFERENCE_RDC_KASAI-ORIENTAL_MBUJI-MAYI_TSHISHIMBI_MUKEBA_1_20250101.jpg**
+        {/* - A2_REFERENCE_RDC_KASAI-ORIENTAL_MBUJI-MAYI_TSHISHIMBI_MUDIBA_1_20250101.jpg */}
+        - ...
+- ...
+</FileTree>
+
+... and so on.

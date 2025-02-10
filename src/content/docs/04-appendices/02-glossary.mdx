@@ -1,0 +1,32 @@
+---
+title: Glossary
+sidebar:
+  order: 2
+description: A wireframe for the manual section of these docs.
+---
+
+- **Ancillary**: Map elements that are used to orient the viewer in space. Example: roads, settlement names
+- **Area of interest**: The part of the map most relevant to the viewer. Ex: The health facility catchment area boundary
+- **Attributes**: Refers to the attribute table associated with a feature class/shapefile
+- **Cardinality**: The direction in which one feature is joined to another. In the map template, we discuss the cardinality of concentration point proximity basins: the health center that a concentration point is aligned with
+- **Concatenate**: To merge text sequentially 
+- **Data source**: The origin of a map layer in your computer or server’s file structure. When importing the map template, it is necessary to connect each pre-symbolized layer in the map frame to a new data source 
+- **Definition query**: Enables filtering similar in function to a page query, but references the attributes of a layer rather than the map series. Useful if you want to hide features but not permanently delete them from a file
+- **Delimiter**: A standard character that separates two values, ideally unique. Ex: An underscore (“_”) that separates the names of nested administrative units in a file name
+- **Dynamic**: Something that may update between pages of the map series
+- **Fitting strategy**: Defined constraints for a dynamic element. If the element is too large, it will resize itself based on the strategy selected in its Properties pane
+- **Geometry**: Refers to the geographic coordinates/shapes on the map itself
+- **Index layer**: The polygon layer that guides the extent for each page in a map series
+- **Layer**: A file displayed in the map frame’s table of contents
+- **Layer properties**: Accessed by double clicking a layer. From here, you can access its data source and query (filter) options
+- **Map frame**: The canvas on which your spatial data layers are symbolized and  displayed
+- **Map layout**: The full page that will be printed. Includes the map frame, plus all map surrounds: title, scale bar, legend, and so on
+- **Map series**: A function to enable the semi-automated production of many maps by recycling one map layout among many map frame extents based on the geometry of defined index polygons
+- **Margin**: The extra space at the edge of an object (Ex: the page layout, the outline of the index layer)
+- **Mask**: A copy of a layer that is outside the active area of interest and is visually simplified or partially obscured from view. Ex: A neighboring health facility’s catchment area
+- **Multi-part polygons**: Polygons that have separate, non-contiguous geometries but reference only one feature in the attribute table
+- **Operational**: Map elements that are most immediately important to operations on the ground
+- **Page name**: The attribute field (column) of the index layer that will define the title of the map. The contents of this field for each feature (row) will be the individual page name
+- **Page query**: A filter for features that are inside or outside the map extent. If the contents of a defined field exactly match the active map’s page name, that feature can be filtered to be included or excluded from the area of interest
+- **Resolution**: The density of pixels on a screen or ink dots on a printed page
+- **Static**: Something that is the same on each page of the map series

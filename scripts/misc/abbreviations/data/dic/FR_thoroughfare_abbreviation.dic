@@ -1,0 +1,29 @@
+* Maplex Label Engine Dictionary File - v1.0
+* Format: TEXT ABBREVIATION(S) TYPE
+* where TYPE=[Translation|Keyword|Ending]
+
+"Allée" ALL TRANSLATION
+"Avenue" AV TRANSLATION
+"Boulevard" BD TRANSLATION
+"Centre" CTRE TRANSLATION
+"Centre commercial" CCAL TRANSLATION
+"Immeuble" IMM TRANSLATION
+"Immeubles" IMM TRANSLATION
+"Impasse" IMP TRANSLATION
+"Lieu-dit" LD TRANSLATION
+"Lotissement" LOT TRANSLATION
+"Passage" PAS TRANSLATION
+"Place" PL TRANSLATION
+"Résidence" RES TRANSLATION
+"Rond-Point" RPT TRANSLATION
+"Route" RTE TRANSLATION
+"Square" SQ TRANSLATION
+"Village" VLGE TRANSLATION
+"Zone d'activité" ZA TRANSLATION
+"Zone d'aménagament concerté" ZAC TRANSLATION
+"Zone d'aménagament différé" ZAD TRANSLATION
+"Zone industrielle" ZI TRANSLATION
+"Chemin" CHEM TRANSLATION
+"Sentier" SENT TRANSLATION
+
+* [end]

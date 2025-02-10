@@ -1,0 +1,21 @@
+---
+import { LoremIpsum as GenerateLoremIpsum } from "lorem-ipsum";
+
+const lorem = new GenerateLoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 16,
+    min: 4,
+  },
+});
+
+const paragraphs = lorem.generateParagraphs(2); // Generate 2 paragraphs of Lorem Ipsum
+---
+<div>
+  {paragraphs.split("\n").map((paragraph) => (
+    <p>{paragraph}</p>
+  ))}
+</div>

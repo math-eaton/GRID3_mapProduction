@@ -1,0 +1,22 @@
+---
+title: GRID3 data
+description: A data explorer.
+---
+
+
+import Container from "@components/Container.astro";
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE } from "@consts";
+import { default as FullPageMap } from "@components/FullPageMap.astro";
+
+<PageLayout title={"Full Page Demo"} description={SITE.description}>
+  <FullPageMap
+    container="maplibre-full-map"
+    latitude={40.62860}
+    longitude={-73.94287}
+    zoom={11}
+    interactive="true"
+    mapstyle="./style.json"
+    containerstyle="width: 100%; height: 50vh"
+  />
+</PageLayout>

@@ -1,0 +1,38 @@
+---
+title: GRID3 Cartographic Standards
+description: home
+template: splash
+hero:
+  tagline: Hello world!
+  image:
+    file: ../../assets/logo.webp
+  actions:
+    - text: Start
+      link: /GRID3_mapProduction/01-manual/00-manual/
+      icon: right-arrow
+    - text: Go to GitHub repo
+      link: https://github.com/math-eaton/GRID3_mapProduction
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	{/* <LinkCard title="Read the docs." href="/guides/00-guides" /> */}
+	<Card title="Manual" icon="open-book">
+		Step-by-step walkthroughs for creating maps.
+	</Card>
+	{/* <Card title="Appendix" icon="open-book">
+		Other useful information.
+	</Card> */}
+		<Card title="Map gallery" icon="pencil">
+		See samples of existing GRID3 maps.
+	</Card>
+	<Card title="Codebase" icon="setting">
+		Access the mapping pipeline in [the GitHub repo](https://github.com/math-eaton/GRID3_mapProduction/tree/main/scripts/).
+	</Card>
+		<Card title="GRID3 data hub" icon="add-document">
+		View and download GRID3 data.
+	</Card>
+</CardGrid>
