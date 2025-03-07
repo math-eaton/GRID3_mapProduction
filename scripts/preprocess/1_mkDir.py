@@ -1,5 +1,6 @@
 import os
 import arcpy
+import argparse
 from datetime import datetime
 
 arcpy.env.overwriteOutput = True
@@ -23,12 +24,12 @@ def create_full_project(base_dir):
     print("\nSetting up FULL PROJECT...")
     # Define the static structure
     structure = {
-        "data": [],  # Will add timestamped subfolders later
+        "data": [], 
         "output": ["temp", "archive"],
-        "scripts": [],
-        "docs": [],
-        "logs": [],
-        "config": []
+        # "scripts": [],
+        # "docs": [],
+        # "logs": [],
+        # "config": []
     }
 
     # Create base directories
@@ -79,7 +80,10 @@ def add_new_data_folder(base_dir):
 # Main execution logic
 if __name__ == "__main__":
     # Define project root
-    project_root = "E:\\mheaton\\cartography\\COD_EAF_reference_microplanning_consolidation_20241121"
+    #todo: refactor for argparse
+    # print("Project root?")
+    # parser.add_argument('filename')
+    project_root = "E:\mheaton\cartography\GRID_2025\RDC_EAF_2025"
 
     # Choose action
     print("Choose setup option:")
