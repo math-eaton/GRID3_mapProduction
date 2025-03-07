@@ -4,6 +4,8 @@ sidebar:
   order: 3
 description: A wireframe for the manual section of these docs.
 ---
+import { Steps } from '@astrojs/starlight/components';
+
 
 ## Boundaries
 
@@ -14,3 +16,25 @@ description: A wireframe for the manual section of these docs.
 ## Geoprocessing
 
     ### TableTools
+
+
+## Quality of life
+
+    ### Night mode
+
+    You may have noticed screenshots from the ArcGIS Pro interface have a dark background. This is not the appearance by default, but can be enabled in the **Application** -> **General** settings in the **Options** menu.
+
+    ### Keyboard shortcuts
+
+    - Holding the 'C' key while clicking and dragging the mouse will pan a page layout without repositioning layout elements.
+    - 
+
+## QA/QC
+
+    ### Check at multiple scale ranges
+
+    In the map series properties, you can sort pages in the GUI by any numeric or text field in the input index layer.
+    Since many mapping jobs involve highly variable scale ranges, sort by **the Shape_Area** field and inspect the map series at different scale ranges. 
+    Ensure that your design is appropriate at multiple scales. Look for densely populated areas where labels may overlap, or, conversely, very large scale maps where points of interest may be sparse and a reader may benefit from increased font size.
+    
+    *See also: scale dependencies.*

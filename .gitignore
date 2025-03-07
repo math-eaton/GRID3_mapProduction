@@ -5,6 +5,8 @@ activateEnv.bat
 *.xlsx
 *.csv
 
+*.ai
+
 # *.pdf
 # *.jpg
 # *.png

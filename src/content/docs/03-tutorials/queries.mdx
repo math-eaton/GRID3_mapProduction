@@ -1,0 +1,37 @@
+---
+title: Setting up map series index queries
+sidebar:
+  order: 2
+description: How to query (filter) map frame contents based on spatial extent.
+---
+import { Steps } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Icon } from 'astro-icon/components';
+
+Querying data that draw inside each map frame is a crucial method of reducing the amount of information on the page. This is beneficial for computational resource management and readers' attention management alike. 
+
+## Querying based on tabular data
+
+**Page queries** use boolean logic to check if a value in a defined attribute field *matches* or *does not match* the attribute value defining a given map page. This is useful 
+
+Continuity of attributes important
+
+See **PREPROCESSING** for an automated method to join index page values to point geometries.
+
+<Steps>
+
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus convallis, ipsum ut lacinia tristique, mi felis efficitur augue, ac tempor mauris libero vel quam. 
+2. Suspendisse potenti. Integer ac purus quis massa facilisis ultricies nec at orci. Ut ut ornare leo, vitae rhoncus leo. 
+3. Nulla dictum vitae augue a bibendum. 
+
+</Steps>
+
+If your page query is not activating as expected, *refresh* <Icon name="refresh" /> the map series in the Map Frames tab of the Layout ribbon menu.
+If it is still not working, check the attribute fields are formatted as expected, then remove the query and re-add it.
+
+## Querying based on geometry
+
+Geometric filtering is straightforward to implement, but is less visually flexible and is more graphically intensive on your machine compared to attribute queries. In this cartographer's experience, it is also less prone to bugs. One useful implementation of a geometric query is to make a copy of the remove the active 
+Performing this operation using the polygon geometry eliminates the possibility of incorrect boolean mismatches in the event that 
+
+In addition to this method, you can globally clip all layers outside the active AOI polygon in the map series properties menu. You can then manually select layers to exclude from this global clip.

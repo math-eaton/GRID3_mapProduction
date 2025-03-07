@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from '@astrojs/tailwind';
 
+import icon from 'astro-icon';
+
 // https://astro.build/config
 export default defineConfig({
     site: 'https://math-eaton.github.io',
@@ -14,10 +16,10 @@ export default defineConfig({
             replacesTitle: false,
         },
         favicon: './favicon.png',
-		customCss: [
-			'./src/styles/tailwind.css',
-			// '@fontsource/fontsource/lato',
-		  ],	
+        customCss: [
+            './src/styles/tailwind.css',
+            // '@fontsource/fontsource/lato',
+          ],	
         social: {
             github: 'https://github.com/math-eaton/GRID3_mapProduction',
         },
@@ -32,7 +34,7 @@ export default defineConfig({
             },
             {
                 label: 'Tutorials',
-                autogenerate: { directory: '03-demos' },
+                autogenerate: { directory: '03-tutorials' },
             },
             {
                 label: 'Appendix',
@@ -53,11 +55,8 @@ export default defineConfig({
 
 
         ],
-	}),     
-	tailwind({
-		// Disable the default base styles:
-		applyBaseStyles: false,
-		}),
-	],
+    }), tailwind({
+        // Disable the default base styles:
+        applyBaseStyles: false,
+        }), icon()],
 });
-
