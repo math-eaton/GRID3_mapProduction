@@ -4,10 +4,13 @@ import sys
 import re
 from datetime import datetime
 
-# Define variables for use case and resolution
-use_case = "microplanification"
+# Define keywords for filtering and naming
+layout_keywords = ["a2_reference"]
+map_series_keywords = ["ALL"]
+orientation_keywords = None  # Example: ["LANDSCAPE", "PORTRAIT"]
+use_case = layout_keywords[0].split("_")[0]
+layout_size = layout_keywords[0].split("_")[-1]
 resolution = 300
-layout_size = "A2"
 
 # Function to format the current date in YYYYMMDD format
 def get_current_date_format():
@@ -15,7 +18,7 @@ def get_current_date_format():
 
 # Define the path to your pro project and
 # name of custom output directory
-project_path = r"E:\mheaton\cartography\COD_EAF_reference_microplanning_KS-MG-TP_20241219\COD_EAF_reference_microplanning_MONGALA_20250109.aprx"
+project_path = r"E:\mheaton\cartography\GRID_2025\RDC_EAF_2025\RDC_EAF_2025.aprx"
 output_foldername = f"OUTPUT_{layout_size}_{use_case}_{get_current_date_format()}"
 output_directory = os.path.join(os.path.dirname(project_path), output_foldername)
 
@@ -23,10 +26,6 @@ output_directory = os.path.join(os.path.dirname(project_path), output_foldername
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
-# Define keywords for filtering
-layout_keywords = ["a2_microplanification"]
-map_series_keywords = ["ALL"]
-orientation_keywords = None  # Example: ["LANDSCAPE", "PORTRAIT"]
 
 # Load the ArcGIS Pro project
 p = arcpy.mp.ArcGISProject(project_path)
@@ -76,8 +75,6 @@ for layout in p.listLayouts():
 
         print("page name: ", name_field)
 
-        # uniquePage = getattr(ms.pageRow, pageNum)
-
         # Retrieve start and end page numbers from command-line arguments
         start_page = int(sys.argv[1]) if len(sys.argv) > 1 else 1
         end_page = int(sys.argv[2]) if len(sys.argv) > 2 else ms.pageCount
@@ -102,7 +99,6 @@ for layout in p.listLayouts():
             page_orientation = page_orientation.upper() if page_orientation else None
 
             page_start_time = datetime.now()
-
 
             # Apply page filtering based on keywords and optional orientation keywords
             if page_matches_keywords(page_name) and (
